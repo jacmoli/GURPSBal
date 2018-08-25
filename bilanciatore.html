@@ -18,33 +18,34 @@ function prob(dadi,facce,risult){
 	let k
 	
 	for ( i = 0; i < facce; i++) {
-    P1[i] = 0
-  }
+		P1[i] = 0
+	}
 	for (i = facce; i < 2 * facce; i++) {
-    P1[i] = 1
-  }
+		P1[i] = 1
+	}
 	for (i = 2 * facce; i < (dadi + 1) * facce; i++) {
-    P1[i] = 0
-  }
+		P1[i] = 0
+	}	
+	
 	let Pold = []
 	let Pt = P1.slice(0)
 	
 	for (k = 2; k <= dadi; k++) {
 		Pold = Pt.slice(0);
 		for (i = 0; i < facce; i++) {
-      Pt[i] = 0
-    }
+			Pt[i] = 0
+		}
 		for (i = facce; i < (dadi + 1) * facce; i++) {
-      Pt[i] = sommaele(Pold, i - facce, i - 1)
-    }
+			Pt[i] = sommaele(Pold, i - facce, i - 1)
+		}
 	}
 	
 	for (i = 0; i < Pt.length; i++) {
-    Pt[i] = Pt[i] / Math.pow(facce, dadi)
-  }
+		Pt[i] = Pt[i] / Math.pow(facce, dadi)
+	}
 	for (i = 0; i < facce; i++) {
-    Pt.shift()
-  }
+		Pt.shift()
+	}
 	
 	//console.log("P1: ", P1);
 	//console.log("Pold: ", Pold);
@@ -63,119 +64,244 @@ function cumul(dadi, facce, risult) {
 }
 
 function lower(id, minimo) {
-  id.innerHTML = Math.max(parseInt(id.innerHTML) - 1, minimo)
-  run()
+	id.innerHTML = Math.max(parseInt(id.innerHTML) - 1, minimo)
+	run()
 }
+
 function raise(id, massimo) {
-  id.innerHTML = Math.min(parseInt(id.innerHTML) + 1, massimo)
-  run()
+	id.innerHTML = Math.min(parseInt(id.innerHTML) + 1, massimo)
+	run()
 }
 
 function getValue(name) {
-  return document.getElementById(name).innerHTML
+	return document.getElementById(name).innerHTML
 }
 
 function setValue(name, value) {
-  return document.getElementById(name).innerHTML = value
+	return document.getElementById(name).innerHTML = value
 }
 
 function run() {
-  let critS=0;
-  let atk = +(getValue("atk"))
-  let dmgD = +(getValue("dmgD"))
-  let dmgM = +(getValue("dmgM"))
-  let def = +(getValue("def"))
-  let DR = +(getValue("DR"))
+	let critSA=0;
+	let atkA = +(getValue("atkA"))
+	let dmgDA = +(getValue("dmgDA"))
+	let dmgMA = +(getValue("dmgMA"))
+	let defA = +(getValue("defA"))
+	let DRA = +(getValue("DRA"))
 
-  if (atk >= 16) {
-    critS = 6
-  } else if (atk == 15) {
-    critS = 5
-  } else {
-    critS = 4
-  }
+	let critSB=0;
+	let atkB = +(getValue("atkB"))
+	let dmgDB = +(getValue("dmgDB"))
+	let dmgMB = +(getValue("dmgMB"))
+	let defB = +(getValue("defB"))
+	let DRB = +(getValue("DRB"))
 
-  let pConn = cumul(3, 6, critS) + (cumul(3, 6, Math.min(Math.max(atk, 4), 16)) - cumul(3, 6, critS)) * (1 - cumul(3, 6, Math.min(Math.max(def, 4), 16)))
-  let pDanno = 1 - cumul(dmgD, 6, Math.min(dmgD*6, DR - dmgM))
-  let pEffect = pConn * pDanno
+	
+	if (atkA >= 16) {
+		critSA = 6
+	} else if (atkA == 15) {
+		critSA = 5
+	} else {
+		critSA = 4
+	}
+	
+	if (atkB >= 16) {
+		critSB = 6
+	} else if (atkB == 15) {
+		critSB = 5
+	} else {
+		critSB = 4
+	}
+
+
+	let pConnA = cumul(3, 6, critSA) + (cumul(3, 6, Math.min(Math.max(atkA, 4), 16)) - cumul(3, 6, critSA)) * (1 - cumul(3, 6, Math.min(Math.max(defB, 4), 16)))
+	let pDannoA = 1 - cumul(dmgDA, 6, Math.min(dmgDA*6, DRB - dmgMA))
+	let pEffectA = pConnA * pDannoA
  
-
-  setValue("ode", (Math.abs(pConn)   *100).toFixed(2))
-  setValue("odr", (Math.abs(pDanno)  *100).toFixed(2))
-  setValue("ctd", (Math.abs(pEffect) *100).toFixed(2))
+	let pConnB = cumul(3, 6, critSB) + (cumul(3, 6, Math.min(Math.max(atkB, 4), 16)) - cumul(3, 6, critSB)) * (1 - cumul(3, 6, Math.min(Math.max(defA, 4), 16)))
+	let pDannoB = 1 - cumul(dmgDB, 6, Math.min(dmgDB*6, DRA - dmgMB))
+	let pEffectB = pConnB * pDannoB
+ 
+ 
+	setValue("odeA", (Math.abs(pConnA)   *100).toFixed(2)+ " %")
+	setValue("odrA", (Math.abs(pDannoA)  *100).toFixed(2)+ " %")
+	setValue("ctdA", (Math.abs(pEffectA) *100).toFixed(2)+ " %")
+	
+	setValue("odeB", (Math.abs(pConnB)   *100).toFixed(2)+ " %")
+	setValue("odrB", (Math.abs(pDannoB)  *100).toFixed(2)+ " %")
+	setValue("ctdB", (Math.abs(pEffectB) *100).toFixed(2)+ " %")
 }
 
 </script>
 
 <style>
 
-table {	
+body {
+	margin: 10px;
+	padding:0;
+}
+
+
+.tabella {	
+	box-sizing: content-box;
 	border: 2px solid black;
+	padding: 0px;
 	width: 100%;
 	max-width: 400px;
+	display:block;
+
 }
 
 .righe {
-	height: 3em;
+	display: flex;
+	flex-direction:row;
+	width: 100%;
+	height:3em;
+	padding: 0;
 }
 
-.nome {
-	width: 8em;
-}		
-
-.meno, .piu {
-	width: 3em;
+.nome, .val {
+	margin: 1em 0;
 	text-align:center;
 }
-.val {
-	width: 4em;
-	text-align: center;
+
+button {
+	box-sizing: content-box; 
+	height:2em;
+	width:80%;
+	padding:0;
 }
+
+.meno, .piu {
+	margin: 0.5em 0;
+	text-align:center;
+}
+
+
+.nome {
+	width: 40%;
+}
+
+.meno, .piu {
+	width: 10%;
+}
+
+.val {
+	width: 10%;
+}
+
+#player, #enemy {
+	text-align:center; 
+	border-bottom: 1px solid black; 
+	box-sizing: content-box; 
+	padding:0.5em 0;
+	width: 30%;
+}
+
+
+.righeriass {
+	display: flex;
+	flex-direction:row;
+	height: 2em;
+}
+
+.celleriass, .nomeriass {
+	margin: 0.5em 0;
+	text-align:center;
+}
+
+.celleriass {
+	width: 30%;
+}
+
+.nomeriass {
+	width: 40%;
+}
+
+
+
 </style>
 </head>
 <body>
-  <table>
-  	<tr>
-  		<td colspan="4"><p style="text-align:center; border: 1px solid black;">Attacker</p></td>
-  	</tr>
-  	<tr class="righe">
-  		<td class="nome">Attack skill</td>
-  		<td class="meno"><button type="button" onclick="lower(atk, 0)">-</td>
-  		<td class="val"><span id="atk">10</span></td>
-  		<td class="piu"><button type="button" onclick="raise(atk, 20)">+</td>		
-  	</tr>
-  	<tr class="righe">
-  		<td class="nome">Attack dice</td>
-  		<td class="meno"><button type="button" onclick="lower(dmgD, 1)">-</td>
-  		<td class="val"><span id="dmgD">2</span></td>
-  		<td class="piu"><button type="button" onclick="raise(dmgD, 100)">+</td>		
-  	</tr>
-  	<tr class="righe">
-  		<td class="nome">Attack modifier</td>
-  		<td class="meno"><button type="button" onclick="lower(dmgM, -6)">-</td>
-  		<td class="val"><span id="dmgM">1</span></td>
-  		<td class="piu"><button type="button" onclick="raise(dmgM, 4)">+</td>		
-  	</tr>
-  	<tr style="height:1em;">
-  	</tr>
-  	<tr>
-  		<td colspan="4"><p style="text-align:center; border: 1px solid black;">Defender</p></td>
-  	</tr>	
-  	<tr class="righe">
-  		<td class="nome">Defense skill</td>
-  		<td class="meno"><button type="button" onclick="lower(def, 0)">-</td>
-  		<td class="val"><span id="def">10</span></td>
-  		<td class="piu"><button type="button" onclick="raise(def, 20)">+</td>		
-  	</tr>
-  	<tr class="righe">
-  		<td class="nome">Armor DR</td>
-  		<td class="meno"><button type="button" onclick="lower(DR, 0)">-</td>
-  		<td class="val"><span id="DR">2</span></td>
-  		<td class="piu"><button type="button" onclick="raise(DR, 20)">+</td>		
-  	</tr>	
-  </table>
-  <p><span>Overcome defense:</span> <span id="ode"></span> %</p>
-  <p><span>Overcome DR:</span>      <span id="odr"></span> %</p>
-  <p><span>Chance to damage:</span> <span id="ctd"></span> %</p>
+
+
+<div class ="tabella">
+	<div class="righe" style="height:2em;">
+		<div id="player">Player</div>
+		<div class="nome"></div>
+		<div id="enemy">Enemy</div>
+	</div>
+	<div class="righe">
+		<div class="meno"><button type="button" onclick="lower(atkA, 0)">&#x25BC;</div>
+		<div class="val"><span id="atkA">10</span></div>
+		<div class="piu"><button type="button" onclick="raise(atkA, 20)">&#x25B2;</div>
+		<div class="nome">Atk skill</div>
+		<div class="meno"><button type="button" onclick="lower(atkB, 0)">&#x25BC;</div>
+		<div class="val"><span id="atkB">10</span></div>
+		<div class="piu"><button type="button" onclick="raise(atkB, 20)">&#x25B2;</div>		
+	</div>
+	<div class="righe">
+		<div class="meno"><button type="button" onclick="lower(dmgDA, 1)">&#x25BC;</div>
+		<div class="val"><span id="dmgDA">2</span></div>
+		<div class="piu"><button type="button" onclick="raise(dmgDA, 100)">&#x25B2;</div>	
+		<div class="nome">Dmg dice</div>
+		<div class="meno"><button type="button" onclick="lower(dmgDB, 1)">&#x25BC;</div>
+		<div class="val"><span id="dmgDB">2</span></div>
+		<div class="piu"><button type="button" onclick="raise(dmgDB, 100)">&#x25B2;</div>		
+	</div>
+	<div class="righe">
+		<div class="meno"><button type="button" onclick="lower(dmgMA, -6)">&#x25BC;</div>
+		<div class="val"><span id="dmgMA">1</span></div>
+		<div class="piu"><button type="button" onclick="raise(dmgMA, 4)">&#x25B2;</div>	
+		<div class="nome">Dmg mod</div>
+		<div class="meno"><button type="button" onclick="lower(dmgMB, -6)">&#x25BC;</div>
+		<div class="val"><span id="dmgMB">1</span></div>
+		<div class="piu"><button type="button" onclick="raise(dmgMB, 4)">&#x25B2;</div>
+	</div>
+
+	<div style="height:1em;">
+	</div>
+
+	<div class="righe">
+		<div class="meno"><button type="button" onclick="lower(defA, 0)">&#x25BC;</div>
+		<div class="val"><span id="defA">10</span></div>
+		<div class="piu"><button type="button" onclick="raise(defA, 20)">&#x25B2;</div>
+		<div class="nome">Def skill</div>
+		<div class="meno"><button type="button" onclick="lower(defB, 0)">&#x25BC;</div>
+		<div class="val"><span id="defB">10</span></div>
+		<div class="piu"><button type="button" onclick="raise(defB, 20)">&#x25B2;</div>		
+	</div>
+	<div class="righe">
+		<div class="meno"><button type="button" onclick="lower(DRA, 0)">&#x25BC;</div>
+		<div class="val"><span id="DRA">2</span></div>
+		<div class="piu"><button type="button" onclick="raise(DRA, 20)">&#x25B2;</div>
+		<div class="nome">Armor DR</div>
+		<div class="meno"><button type="button" onclick="lower(DRB, 0)">&#x25BC;</div>
+		<div class="val"><span id="DRB">2</span></div>
+		<div class="piu"><button type="button" onclick="raise(DRB, 20)">&#x25B2;</div>		
+	</div>	
+</div>
+
+<br>
+
+<div class ="tabella">
+	<div class="righeriass">
+		<div class="celleriass"><span id="odeA"></span></div>
+		<div class="nomeriass">To hit</div>
+		<div class="celleriass"><span id="odeB"></span></div>
+	</div>
+	<div class="righeriass">
+		<div class="celleriass"><span id="odrA"></span></div>
+		<div class="nomeriass">To bypass DR</div>
+		<div class="celleriass"><span id="odrB"></span></div>
+	</div>
+	<div class="righeriass">
+		<div class="celleriass"><span id="ctdA"></span></div>
+		<div class="nomeriass">Effective</div>
+		<div class="celleriass"><span id="ctdB"></span></div>
+	</div>
+</div>
+
+
 </body>
 </html>
