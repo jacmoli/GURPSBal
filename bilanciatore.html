@@ -134,23 +134,130 @@ function run() {
 	document.getElementById("risultati").style.display="block";
 }
 
+function show(elem){document.getElementById(elem).style.display="block";}
+function hide(elem){document.getElementById(elem).style.display="none";}
+
 </script>
 
 <style>
 
-body {
-	margin: 10px;
-	padding:0;
-	max-width:404px;
+* {
+	font-family: "Comic Sans MS";
 }
 
+body {
+	margin: 0;
+	padding:0;
+}
+
+#menu {
+	width:100%;
+	height: 3em;
+	display:flex;
+	display: -webkit-flex; 
+	margin-bottom:0.2em;
+}
+
+#menu-title {
+	width:60%;
+	height: 3em;
+	display:flex;
+	display: -webkit-flex; 
+}
+
+#menu-help, #menu-info {
+	box-sizing:border-box;
+	border: 2px solid black;
+	border-radius:1em;
+	width:18%;
+	height: 2em;
+	display:flex;
+	display: -webkit-flex; 
+	margin-top:auto;
+	margin-bottom:auto;
+}
+
+#menu-help {
+	margin-right: 2%;
+	background-color:#ffaaaa;
+}
+
+#menu-info {
+	margin-left: 2%;
+	background-color:#aaffaa;
+}
+
+#helpbox, #infobox {
+	margin: 0;
+	width:auto;
+	max-width:404px;
+	height:auto;
+	box-sizing:border-box;
+	display:none;
+	position:fixed;
+	top:5px;
+	left:5px;
+	bottom:5px;
+	right:5px;
+	background-color:#cccccc;
+	z-index:1;
+	padding:10px;
+	
+}
+
+#helptext, #infotext {
+	box-sizing:border-box;
+	background-color:#ffffff;
+	padding:3px;
+	position:absolute;
+	top:10px;
+	left:10px;
+	right:10px;
+	bottom:4em;	
+	overflow-y:scroll;
+}
+
+#closehelp, #closeinfo {
+	position:absolute;
+	display:flex;
+	display: -webkit-flex; 
+	left:30%;
+	right:30%;
+	bottom:1em;
+	box-sizing:border-box;
+	background-color:#aaaaff;
+	height:2em;
+	margin: auto;
+	border: 1px solid black;
+	border-radius: 1em;
+}
+
+#contenit {
+	margin:0;
+	padding:3px;
+	max-width:404px;
+	background-color:#ffffff;
+	width:auto;
+	height:auto;
+	box-sizing:border-box;
+	position:fixed;
+	top:5px;
+	bottom:5px;
+	left:5px;
+	right:5px;
+	overflow-y:auto;
+}
+
+.centrati{
+	margin:auto;
+}
 
 .tabella {	
-	box-sizing: content-box;
+	box-sizing: border-box;
 	border: 2px solid black;
 	padding: 0px;
 	width: 100%;
-	max-width: 400px;
+	max-width: 404px;
 	display:block;
 
 }
@@ -235,85 +342,150 @@ button {
 
 
 <body>
+<div id="contenit">
 
-
-<div class ="tabella">
-	<div class="righe" style="height:2em;">
-		<div id="player">Player</div>
-		<div class="nome"></div>
-		<div id="enemy">Enemy</div>
-	</div>
-	<div class="righe">
-		<div class="meno"><button type="button" onclick="lower(atkA, 0)">&#x25BC;</button></div>
-		<div class="val"><span id="atkA">10</span></div>
-		<div class="piu"><button type="button" onclick="raise(atkA, 20)">&#x25B2;</button></div>
-		<div class="nome">Atk skill</div>
-		<div class="meno"><button type="button" onclick="lower(atkB, 0)">&#x25BC;</button></div>
-		<div class="val"><span id="atkB">10</span></div>
-		<div class="piu"><button type="button" onclick="raise(atkB, 20)">&#x25B2;</button></div>		
-	</div>
-	<div class="righe">
-		<div class="meno"><button type="button" onclick="lower(dmgDA, 1)">&#x25BC;</button></div>
-		<div class="val"><span id="dmgDA">2</span></div>
-		<div class="piu"><button type="button" onclick="raise(dmgDA, 100)">&#x25B2;</button></div>	
-		<div class="nome">Dmg dice</div>
-		<div class="meno"><button type="button" onclick="lower(dmgDB, 1)">&#x25BC;</button></div>
-		<div class="val"><span id="dmgDB">2</span></div>
-		<div class="piu"><button type="button" onclick="raise(dmgDB, 100)">&#x25B2;</button></div>		
-	</div>
-	<div class="righe">
-		<div class="meno"><button type="button" onclick="lower(dmgMA, -6)">&#x25BC;</button></div>
-		<div class="val"><span id="dmgMA">1</span></div>
-		<div class="piu"><button type="button" onclick="raise(dmgMA, 4)">&#x25B2;</button></div>	
-		<div class="nome">Dmg mod</div>
-		<div class="meno"><button type="button" onclick="lower(dmgMB, -6)">&#x25BC;</button></div>
-		<div class="val"><span id="dmgMB">1</span></div>
-		<div class="piu"><button type="button" onclick="raise(dmgMB, 4)">&#x25B2;</button></div>
+	<div id="menu">
+		<div id="menu-title"><span><b>GURPS</b><sup>&#174;</sup><br/>Combat balancer</span></div>
+		<div id="menu-help" onclick="show('helpbox')"><span class="centrati">HELP</span></div>
+		<div id="menu-info" onclick="show('infobox')"><span class="centrati">INFO</span></div>
 	</div>
 
-	<div style="height:1em;">
+	<div class ="tabella">
+		<div class="righe" style="height:2em;">
+			<div id="player">Player</div>
+			<div class="nome"></div>
+			<div id="enemy">Enemy</div>
+		</div>
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(atkA, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="atkA">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(atkA, 20)">&#x25B2;</button></div>
+			<div class="nome">Atk skill</div>
+			<div class="meno"><button type="button" onclick="lower(atkB, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="atkB">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(atkB, 20)">&#x25B2;</button></div>		
+		</div>
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(dmgDA, 1)">&#x25BC;</button></div>
+			<div class="val"><span id="dmgDA">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(dmgDA, 100)">&#x25B2;</button></div>	
+			<div class="nome">Dmg dice</div>
+			<div class="meno"><button type="button" onclick="lower(dmgDB, 1)">&#x25BC;</button></div>
+			<div class="val"><span id="dmgDB">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(dmgDB, 100)">&#x25B2;</button></div>		
+		</div>
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(dmgMA, -6)">&#x25BC;</button></div>
+			<div class="val"><span id="dmgMA">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(dmgMA, 4)">&#x25B2;</button></div>	
+			<div class="nome">Dmg mod</div>
+			<div class="meno"><button type="button" onclick="lower(dmgMB, -6)">&#x25BC;</button></div>
+			<div class="val"><span id="dmgMB">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(dmgMB, 4)">&#x25B2;</button></div>
+		</div>
+
+		<div style="height:1em;">
+		</div>
+
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(defA, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="defA">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(defA, 20)">&#x25B2;</button></div>
+			<div class="nome">Def skill</div>
+			<div class="meno"><button type="button" onclick="lower(defB, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="defB">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(defB, 20)">&#x25B2;</button></div>		
+		</div>
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(DRA, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="DRA">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(DRA, 20)">&#x25B2;</button></div>
+			<div class="nome">Armor DR</div>
+			<div class="meno"><button type="button" onclick="lower(DRB, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="DRB">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(DRB, 20)">&#x25B2;</button></div>		
+		</div>	
 	</div>
 
-	<div class="righe">
-		<div class="meno"><button type="button" onclick="lower(defA, 0)">&#x25BC;</button></div>
-		<div class="val"><span id="defA">10</span></div>
-		<div class="piu"><button type="button" onclick="raise(defA, 20)">&#x25B2;</button></div>
-		<div class="nome">Def skill</div>
-		<div class="meno"><button type="button" onclick="lower(defB, 0)">&#x25BC;</button></div>
-		<div class="val"><span id="defB">10</span></div>
-		<div class="piu"><button type="button" onclick="raise(defB, 20)">&#x25B2;</button></div>		
+	<br>
+
+	<div class ="tabella" id="risultati">
+		<div class="righeriass">
+			<div class="celleriass"><span id="odeA"></span></div>
+			<div class="nomeriass">To hit</div>
+			<div class="celleriass"><span id="odeB"></span></div>
+		</div>
+		<div class="righeriass">
+			<div class="celleriass"><span id="odrA"></span></div>
+			<div class="nomeriass">To bypass DR</div>
+			<div class="celleriass"><span id="odrB"></span></div>
+		</div>
+		<div class="righeriass">
+			<div class="celleriass"><span id="ctdA"></span></div>
+			<div class="nomeriass">Effective</div>
+			<div class="celleriass"><span id="ctdB"></span></div>
+		</div>
 	</div>
-	<div class="righe">
-		<div class="meno"><button type="button" onclick="lower(DRA, 0)">&#x25BC;</button></div>
-		<div class="val"><span id="DRA">2</span></div>
-		<div class="piu"><button type="button" onclick="raise(DRA, 20)">&#x25B2;</button></div>
-		<div class="nome">Armor DR</div>
-		<div class="meno"><button type="button" onclick="lower(DRB, 0)">&#x25BC;</button></div>
-		<div class="val"><span id="DRB">2</span></div>
-		<div class="piu"><button type="button" onclick="raise(DRB, 20)">&#x25B2;</button></div>		
-	</div>	
+
 </div>
 
-<br>
-
-<div class ="tabella" id="risultati">
-	<div class="righeriass">
-		<div class="celleriass"><span id="odeA"></span></div>
-		<div class="nomeriass">To hit</div>
-		<div class="celleriass"><span id="odeB"></span></div>
+<div id="helpbox">
+	<div id="helptext">
+		<h2>Purpose of this game aid</h2>
+		<p>
+		This game aid simulates a combat between two opponents with set characteristics and returns the following info:
+		<ul>
+			<li><b>Chance to hit</b>: the chance of scoring a critical hit (no defense allowed) plus the chance of scoring a non-critical hit for 
+			which the defender fails his defense roll;</li>
+			<li><b>Chance to bypass DR</b>: chance that the damage roll is more than the defender's DR;</li>
+			<li><b>Chance to damage</b>: the product of the two above (i.e. chance to hit with a powerful enough attack).</li>
+		</ul>
+		with the reference rules of <b>GURPS</b><sup>&#174;</sup> Basic Set, 4th edition.
+		</p>
+		<h3>Simplifications</h3>
+		<p>
+		<b>Combat</b>: only 1vs1 melee combat is considered with both weapons within reach.
+		</p>
+		<p>
+		<b>Manoeuvres</b>: only standard attack and defense are considered. No all-out attacks, feints, evaluations, extra effort or aimed attacks.
+		</p>
+		<p>
+		<b>Stances and positions</b>: the fighters are assumed standing and facing each other. No runaround, side or back attacks.
+		</p>
+		<p>
+		<b>Endurance</b>: the simulation only deals with chance to do at least 1 point of damage, without considering how much is the actual damage,
+		the damage type (cutting, piercing...) and the HP of the fighters.
+		</p>
+		<p>
+		<b>Other items</b>: no light penalties, no footing penalties, no shock penalties.
+		</p>
 	</div>
-	<div class="righeriass">
-		<div class="celleriass"><span id="odrA"></span></div>
-		<div class="nomeriass">To bypass DR</div>
-		<div class="celleriass"><span id="odrB"></span></div>
-	</div>
-	<div class="righeriass">
-		<div class="celleriass"><span id="ctdA"></span></div>
-		<div class="nomeriass">Effective</div>
-		<div class="celleriass"><span id="ctdB"></span></div>
+	<div id="closehelp" onclick="hide('helpbox')">
+		<span class="centrati">CLOSE</span>
 	</div>
 </div>
 
+<div id="infobox">
+	<div id="infotext">
+		<h2>Legal info</h2>
+		<p>
+		GURPS is a trademark of Steve Jackson Games, and its rules and art are copyrighted by Steve Jackson Games.<br/>
+		All rights are reserved by Steve Jackson Games.<br/>
+		This game aid is the original creation of Jacopo Molinari and is released for free distribution, and not for resale,
+		under the permission granted in the <a href="http://www.sjgames.com/general/online_policy.html">Steve Jackson Games
+		Online Policy</a>.
+		</p>
+		<h2>Disclaimer</h2>
+		<p>
+		The material rpesented here si my original creation, intended for use with the <a href="http:www.sjgames.com/gurps/">
+		<b><i>GURPS</i></b></a> system from <a href="http://www.sjgames.com/">Steve Jackson Games</a>.<br/>
+		This material is not official and is not endorsed by Steve Jackson Games.
+		</p>
+	</div>
+	<div id="closeinfo" onclick="hide('infobox')">
+		<span class="centrati">CLOSE</span>
+	</div>
+</div>
 
 </body>
 </html>
