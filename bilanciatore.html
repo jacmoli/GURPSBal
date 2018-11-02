@@ -1,9 +1,10 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bilanciatore incontri</title>
+  <title>Combat balancer</title>
 <script>
 
+ 
 function sommaele(myArr, indI, indF) {
 	let s = 0
 	for(let i = indI; i <= indF; i++) {
@@ -136,6 +137,219 @@ function run() {
 
 function show(elem){document.getElementById(elem).style.display="block";}
 function hide(elem){document.getElementById(elem).style.display="none";}
+
+
+
+// FIGHT SIMULATOR
+
+// Dice roller, D dice with S sides
+function roll(dice, sides, label) {
+	let r = 0;
+	let i;
+	let cast; 
+	let results = (label == undefined ? "" : ("[" + label + "] ")) + "Rolls: ";
+	
+	for (i = 0; i < dice; i++) {
+		cast = Math.floor(Math.random()*sides)+1;
+		r = r + cast,
+		results = results + cast + " ";			
+	}		
+	
+	//console.log(results);
+	return r
+}
+
+// Character builder
+function charBuilder(charName) {
+	
+	let x = {
+		name  : getValue(charName+"Name"),
+		atk   : getValue(charName+"Atk"),  
+		def   : getValue(charName+"Def"),
+		damD  : getValue(charName+"DamD"),
+		damM  : getValue(charName+"DamM"),
+		damT  : getValue(charName+"DamT"), 
+		armR  : getValue(charName+"ArmR"),
+		hp    : getValue(charName+"HP"),
+		shock : 0
+	};	
+
+	return x
+}
+
+// Default character builder
+function charDefault(a) {
+	let x = {
+		name  : "Player: " + a,
+		atk   : 11,
+		def   : 8,
+		damD  : 2,
+		damM  : 1,
+		damT  : 1.5,
+		armR  : 3,
+		hp    : 12,
+		shock : 0,
+	};
+	
+	return x
+}
+
+
+// Fight phases
+function attack(x, y) {
+
+	let res = roll(3,6);      // dice roll result
+	let R = {val:0, log:""};  // outcome and logs
+	let att= x.atk - x.shock;
+	x.shock = 0;
+	
+	
+	if (res <=4 || (res <=6 && res >= (att+10))) {
+		R.val = -1;
+		R.log = x.name + " rolled " + res + " vs " + att + ", a critical success!\n";
+	} else if (res <= att && res < 17) {
+		R.val = 1;
+		R.log = x.name + " rolled " + res + " vs " + att + ", a standard success. " + y.name + " gets to defend...";
+	} else {
+		R.val = 0;
+		R.log = x.name + " rolled " + res + " vs " + att + ", a poor and useless attack.\n\n";
+	}
+
+	return R
+}
+
+function defend(x, y) {
+
+	let res = roll(3,6);      // dice roll result
+	let R = {val:0, log:""};  // outcome and logs
+	let def = y.def;
+	
+	
+	if (res <= def) {
+		R.val = 0;
+		R.log = " and succeeds (roll " + res + " vs " + def + ")!\n\n";
+	} else {
+		R.val = 1;
+		R.log = " and fails (roll " + res + " vs " + def + ").\n";
+	}
+	
+	return R	
+}
+
+function damage(x, y) {
+
+	let dice  = x.damD;  // damage dice
+	let modif  = x.damM;  // damage modifier
+	let type  = x.damT;  // residual damage multiplier
+	let damred = y.armR;  // armor reduction
+
+
+	let res = roll(dice,6) + modif;
+	let R = {val:0, log:""};
+	
+	let temp = Math.floor( (res - damred) * type);
+	
+	R.val = Math.max(temp, 0);
+	
+	R.log = x.name + " rolls " + res + " against a DR of " + y.armR + ". Damage modifier is " + type + " and the final result is " + (R.val >0 ? R.val : "no") + " point(s) of damage.\n\n"
+
+	return R
+}
+
+function round(x, y) {
+
+	let phase1 = {};
+	let phase2 = {};
+	let phase3 = {};
+
+	phase1 = attack(x, y);
+	
+	if (phase1.val === 1) {
+		phase2 = defend(x, y)
+	} else {
+		phase2.val = -1;
+		phase2.log = "";
+	}
+	
+	/* 
+	critical success
+	ph1 = -1 ?
+		ph2 set to -1
+			ph1 x ph2 = 1 --> damage
+	
+	attack fails
+	ph1 =  0 ?
+		ph2 set to -1
+			ph1 x ph2 = 0 --> end turn
+		
+	attack succeeds, defense to be checked
+	ph1 =  1 ?
+		ph2 = 1 ?
+			ph1 x ph2 = 1 --> damage
+		ph2 = 0 ?
+			ph1 x ph2 = 0 --> end turn
+	*/
+	
+	phase3.val = 0;
+	phase3.log = "";
+	
+	if (phase1.val * phase2.val === 1) { phase3 = damage(x, y) }
+
+	console.log(phase1.log + phase2.log + phase3.log);
+	
+	y.hp = y.hp - phase3.val;
+	y.shock = Math.min(phase3.val, 4);
+	
+	return phase3.val
+}
+
+function fight(x, y){
+	let i = 1;
+	while(x.hp > 0 && y.hp > 0){
+	
+		console.log("------------------\nRound " + i);
+	
+		round(x, y);		// X attacks Y
+		console.log(x.name + " has " + x.hp + " HP, " + y.name + " has " + y.hp + " HP.\n");
+		if ( y.hp <= 0 ) {
+			console.log(y.name + " falls down, dead. " + x.name + " wins!\n");
+			return "win1";
+		}
+		
+		round(y, x);		// Y attacks X
+		console.log(x.name + " has " + x.hp + " HP, " + y.name + " has " + y.hp + " HP.\n");
+		if ( x.hp <= 0 ) {
+			console.log(x.name + " falls down, dead. " + y.name + " wins!\n");
+			return "win2";
+		}
+		
+		i++;
+	}
+
+}
+
+// Multiple fight simulator
+function simul(n){
+	var p1, p2;
+	var w1 = 0;
+	var w2 = 0;
+	var w;
+	
+	for (var i = 0; i < n; i++) {
+	
+		p1 = charDefault(1);
+		p2 = charDefault(2);
+		
+		w = fight(p1, p2);
+		
+		w == "win1" ? w1++ : {};
+		w == "win2" ? w2++ : {};
+	}
+	
+	console.log("FINAL RESULT: " + p1.name + " " + w1 + " / " + p2.name + " " + w2);
+	return
+}
+
 
 </script>
 
