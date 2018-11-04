@@ -132,11 +132,16 @@ function run() {
 	setValue("bOvercomeDR", (Math.abs(pDannoB)  *100).toFixed(2)+ " %")
 	setValue("bChanceToDamage", (Math.abs(pEffectB) *100).toFixed(2)+ " %")
 	
-	document.getElementById("risultati").style.display="block";
+	show("risultati");
+	show("simulations");
+	
+	simul(50);
 }
 
 function show(elem){document.getElementById(elem).style.display="block";}
 function hide(elem){document.getElementById(elem).style.display="none";}
+
+function setW(elem, val){document.getElementById(elem).style.width=val;}
 
 
 
@@ -305,6 +310,10 @@ function round(x, y) {
 
 function fight(x, y){
 	let i = 1;
+	let easy1 = Math.ceil(x.hp/3);
+	let easy2 = Math.ceil(y.hp/3);
+	let R = "";
+	
 	while(x.hp > 0 && y.hp > 0){
 	
 		console.log("------------------\nRound " + i);
@@ -313,14 +322,14 @@ function fight(x, y){
 		console.log(x.name + " has " + x.hp + " HP, " + y.name + " has " + y.hp + " HP.\n");
 		if ( y.hp <= 0 ) {
 			console.log(y.name + " falls down, dead. " + x.name + " wins!\n");
-			return "win1";
+			return (x.hp >= easy1 ?   "easy1" :  "hard1")
 		}
 		
 		round(y, x);		// Y attacks X
 		console.log(x.name + " has " + x.hp + " HP, " + y.name + " has " + y.hp + " HP.\n");
 		if ( x.hp <= 0 ) {
 			console.log(x.name + " falls down, dead. " + y.name + " wins!\n");
-			return "win2";
+			return (y.hp >= easy2 ?   "easy2" :  "hard2")
 		}
 		
 		i++;
@@ -330,23 +339,39 @@ function fight(x, y){
 
 // Multiple fight simulator
 function simul(n){
-	var p1, p2;
-	var w1 = 0;
-	var w2 = 0;
-	var w;
+	let p1, p2;
+	let we1 = 0;
+	let wh1 = 0;
+	let we2 = 0;
+	let wh2 = 0;
+	let w;
 	
-	for (var i = 0; i < n; i++) {
+	for (let i = 0; i < n; i++) {
 	
-		p1 = charDefault(1);
-		p2 = charDefault(2);
+		p1 = charBuilder("a");
+		p2 = charBuilder("b");
 		
 		w = fight(p1, p2);
 		
-		w == "win1" ? w1++ : {};
-		w == "win2" ? w2++ : {};
+		w == "easy1" && we1++;
+		w == "hard1" && wh1++;
+		w == "hard2" && wh2++;		
+		w == "easy2" && we2++;
+
+		
+
 	}
+
+	setW("aEasyWin", Math.floor(100*we1/n) +"%");
+	setW("aHardWin", Math.floor(100*wh1/n) +"%");
+	setW("bHardWin", Math.floor(100*wh2/n) +"%");
+	setW("bEasyWin", Math.floor(100*we2/n) +"%");
+
+
+
 	
-	console.log("FINAL RESULT: " + p1.name + " " + w1 + " / " + p2.name + " " + w2);
+	console.log("FINAL RESULT: " + p1.name + " " + we1 + "e " + wh1 + "h" + " / " + p2.name + " " + we2 + "e " + wh2 + "h");
+	
 	return
 }
 
@@ -480,12 +505,12 @@ body {
 	display: flex;
 	flex-direction:row;
 	width: 100%;
-	height:2.5em;
+	height:2.2em;
 	padding: 0;
 }
 
 .nome, .val {
-	margin: 0.75em 0;
+	margin: auto;
 	text-align:center;
 }
 
@@ -499,7 +524,7 @@ body {
 
 button {
 	box-sizing: content-box; 
-	height:2em;
+	height:1.5em;
 	width:80%;
 	padding:0;
 	-webkit-appearance: none;
@@ -508,7 +533,7 @@ button {
 }
 
 .meno, .piu {
-	margin: 0.25em 0;
+	margin: auto;
 	text-align:center;
 	width: 10%;
 }
@@ -523,15 +548,22 @@ button {
 	width: 30%;
 }
 
+#player {
+	color:blue;
+}
+
+#enemy {
+	color:red;
+}
 
 .righeriass {
 	display: flex;
 	flex-direction:row;
-	height: 2em;
+	height: 1.5em;
 }
 
 .celleriass, .nomeriass {
-	margin: 0.5em 0;
+	margin: auto;
 	text-align:center;
 }
 
@@ -547,6 +579,38 @@ button {
 	display:none;
 	margin-top:0.5em;
 }
+
+#simulations {
+	display:none;
+}
+
+#resultbar {
+	display:flex;
+	margin-top:0.5em;
+	height:1.5em;
+}
+
+.winBar {
+	height: 100%;
+	width:  25%;
+}
+
+#aEasyWin {
+	background-color:#0000ff;
+}
+
+#aHardWin {
+	background-color:#7777ff;
+}
+
+#bHardWin {
+	background-color:#ff7777;
+}
+
+#bEasyWin {
+	background-color:#ff0000;
+}
+
 
 
 </style>
@@ -574,7 +638,7 @@ button {
 			<div class="val"><span id="aAtk">10</span></div>
 			<div class="piu"><button type="button" onclick="raise(aAtk, 1, 20)">&#x25B2;</button></div>
 			<div class="nome">Atk skill</div>
-			<div class="meno"><button type="button" onclick="lower(bAtk 1, 0)">&#x25BC;</button></div>
+			<div class="meno"><button type="button" onclick="lower(bAtk, 1, 0)">&#x25BC;</button></div>
 			<div class="val"><span id="bAtk">10</span></div>
 			<div class="piu"><button type="button" onclick="raise(bAtk, 1, 20)">&#x25B2;</button></div>		
 		</div>
@@ -628,13 +692,13 @@ button {
 			<div class="piu"><button type="button" onclick="raise(bArmR, 1, 20)">&#x25B2;</button></div>		
 		</div>	
 		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(aHP, 1, 0)">&#x25BC;</button></div>
+			<div class="meno"><button type="button" onclick="lower(aHP, 1, 1)">&#x25BC;</button></div>
 			<div class="val"><span id="aHP">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(aHP, 1, 20)">&#x25B2;</button></div>
+			<div class="piu"><button type="button" onclick="raise(aHP, 1, 40)">&#x25B2;</button></div>
 			<div class="nome">HP</div>
-			<div class="meno"><button type="button" onclick="lower(bHP, 1, 0)">&#x25BC;</button></div>
+			<div class="meno"><button type="button" onclick="lower(bHP, 1, 1)">&#x25BC;</button></div>
 			<div class="val"><span id="bHP">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(bHP, 1, 20)">&#x25B2;</button></div>		
+			<div class="piu"><button type="button" onclick="raise(bHP, 1, 40)">&#x25B2;</button></div>		
 		</div>			
 	</div>
 
@@ -658,7 +722,32 @@ button {
 		</div>
 	</div>
 
+	<div id="simulations">
+		<div class="tabella" id="resultbar">
+			<div class="winBar" id="aEasyWin"></div>
+			<div class="winBar" id="aHardWin"></div>	
+			<div class="winBar" id="bHardWin"></div>
+			<div class="winBar" id="bEasyWin"></div>
+		</div>
+	</div>
+
+	
+	
+	
+	
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 <div id="helpbox">
 	<div id="helptext">
