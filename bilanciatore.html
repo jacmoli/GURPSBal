@@ -64,13 +64,13 @@ function cumul(dadi, facce, risult) {
 	return somma
 }
 
-function lower(id, minimo) {
-	id.innerHTML = Math.max(parseInt(id.innerHTML) - 1, minimo)
+function lower(id, qty, minimo) {
+	id.innerHTML = Math.max(parseFloat(id.innerHTML) - qty, minimo)
 	run()
 }
 
-function raise(id, massimo) {
-	id.innerHTML = Math.min(parseInt(id.innerHTML) + 1, massimo)
+function raise(id, qty, massimo) {
+	id.innerHTML = Math.min(parseFloat(id.innerHTML) + qty, massimo)
 	run()
 }
 
@@ -84,53 +84,53 @@ function setValue(name, value) {
 
 function run() {
 	let critSA=0;
-	let atkA = +(getValue("atkA"))
-	let dmgDA = +(getValue("dmgDA"))
-	let dmgMA = +(getValue("dmgMA"))
-	let defA = +(getValue("defA"))
-	let DRA = +(getValue("DRA"))
+	let aAtk = +(getValue("aAtk"))
+	let aDamD = +(getValue("aDamD"))
+	let aDamM = +(getValue("aDamM"))
+	let aDef = +(getValue("aDef"))
+	let aArmR = +(getValue("aArmR"))
 
 	let critSB=0;
-	let atkB = +(getValue("atkB"))
-	let dmgDB = +(getValue("dmgDB"))
-	let dmgMB = +(getValue("dmgMB"))
-	let defB = +(getValue("defB"))
-	let DRB = +(getValue("DRB"))
+	let bAtk = +(getValue("bAtk"))
+	let bDamD = +(getValue("bDamD"))
+	let bDamM = +(getValue("bDamM"))
+	let bDef = +(getValue("bDef"))
+	let bArmR = +(getValue("bArmR"))
 
 	
-	if (atkA >= 16) {
+	if (aAtk >= 16) {
 		critSA = 6
-	} else if (atkA == 15) {
+	} else if (aAtk == 15) {
 		critSA = 5
 	} else {
 		critSA = 4
 	}
 	
-	if (atkB >= 16) {
+	if (bAtk >= 16) {
 		critSB = 6
-	} else if (atkB == 15) {
+	} else if (bAtk == 15) {
 		critSB = 5
 	} else {
 		critSB = 4
 	}
 
 
-	let pConnA = cumul(3, 6, critSA) + (cumul(3, 6, Math.min(Math.max(atkA, 4), 16)) - cumul(3, 6, critSA)) * (1 - cumul(3, 6, Math.min(Math.max(defB, 4), 16)))
-	let pDannoA = 1 - cumul(dmgDA, 6, Math.min(dmgDA*6, DRB - dmgMA))
+	let pConnA = cumul(3, 6, critSA) + (cumul(3, 6, Math.min(Math.max(aAtk, 4), 16)) - cumul(3, 6, critSA)) * (1 - cumul(3, 6, Math.min(Math.max(bDef, 4), 16)))
+	let pDannoA = 1 - cumul(aDamD, 6, Math.min(aDamD*6, bArmR - aDamM))
 	let pEffectA = pConnA * pDannoA
  
-	let pConnB = cumul(3, 6, critSB) + (cumul(3, 6, Math.min(Math.max(atkB, 4), 16)) - cumul(3, 6, critSB)) * (1 - cumul(3, 6, Math.min(Math.max(defA, 4), 16)))
-	let pDannoB = 1 - cumul(dmgDB, 6, Math.min(dmgDB*6, DRA - dmgMB))
+	let pConnB = cumul(3, 6, critSB) + (cumul(3, 6, Math.min(Math.max(bAtk, 4), 16)) - cumul(3, 6, critSB)) * (1 - cumul(3, 6, Math.min(Math.max(aDef, 4), 16)))
+	let pDannoB = 1 - cumul(bDamD, 6, Math.min(bDamD*6, aArmR - bDamM))
 	let pEffectB = pConnB * pDannoB
  
  
-	setValue("odeA", (Math.abs(pConnA)   *100).toFixed(2)+ " %")
-	setValue("odrA", (Math.abs(pDannoA)  *100).toFixed(2)+ " %")
-	setValue("ctdA", (Math.abs(pEffectA) *100).toFixed(2)+ " %")
+	setValue("aOvercomeDef", (Math.abs(pConnA)   *100).toFixed(2)+ " %")
+	setValue("aOvercomeDR", (Math.abs(pDannoA)  *100).toFixed(2)+ " %")
+	setValue("aChanceToDamage", (Math.abs(pEffectA) *100).toFixed(2)+ " %")
 	
-	setValue("odeB", (Math.abs(pConnB)   *100).toFixed(2)+ " %")
-	setValue("odrB", (Math.abs(pDannoB)  *100).toFixed(2)+ " %")
-	setValue("ctdB", (Math.abs(pEffectB) *100).toFixed(2)+ " %")
+	setValue("bOvercomeDef", (Math.abs(pConnB)   *100).toFixed(2)+ " %")
+	setValue("bOvercomeDR", (Math.abs(pDannoB)  *100).toFixed(2)+ " %")
+	setValue("bChanceToDamage", (Math.abs(pEffectB) *100).toFixed(2)+ " %")
 	
 	document.getElementById("risultati").style.display="block";
 }
@@ -163,14 +163,14 @@ function roll(dice, sides, label) {
 function charBuilder(charName) {
 	
 	let x = {
-		name  : getValue(charName+"Name"),
-		atk   : getValue(charName+"Atk"),  
-		def   : getValue(charName+"Def"),
-		damD  : getValue(charName+"DamD"),
-		damM  : getValue(charName+"DamM"),
-		damT  : getValue(charName+"DamT"), 
-		armR  : getValue(charName+"ArmR"),
-		hp    : getValue(charName+"HP"),
+		name  :             getValue(charName+"Name")  ,
+		atk   : parseFloat( getValue(charName+"Atk")  ),
+		def   : parseFloat( getValue(charName+"Def")  ),
+		damD  : parseFloat( getValue(charName+"DamD") ),
+		damM  : parseFloat( getValue(charName+"DamM") ),
+		damT  : parseFloat( getValue(charName+"DamT") ), 
+		armR  : parseFloat( getValue(charName+"ArmR") ),
+		hp    : parseFloat( getValue(charName+"HP")   ),
 		shock : 0
 	};	
 
@@ -480,13 +480,21 @@ body {
 	display: flex;
 	flex-direction:row;
 	width: 100%;
-	height:3em;
+	height:2.5em;
 	padding: 0;
 }
 
 .nome, .val {
-	margin: 1em 0;
+	margin: 0.75em 0;
 	text-align:center;
+}
+
+.nome {
+	width: 40%;
+}
+
+.val {
+	width: 10%;
 }
 
 button {
@@ -500,22 +508,12 @@ button {
 }
 
 .meno, .piu {
-	margin: 0.5em 0;
+	margin: 0.25em 0;
 	text-align:center;
-}
-
-
-.nome {
-	width: 40%;
-}
-
-.meno, .piu {
 	width: 10%;
 }
 
-.val {
-	width: 10%;
-}
+
 
 #player, #enemy {
 	text-align:center; 
@@ -547,6 +545,7 @@ button {
 
 #risultati {
 	display:none;
+	margin-top:0.5em;
 }
 
 
@@ -566,78 +565,96 @@ button {
 
 	<div class ="tabella">
 		<div class="righe" style="height:2em;">
-			<div id="player">Player</div>
+			<div id="player"><span id="aName">Player</span></div>
 			<div class="nome"></div>
-			<div id="enemy">Enemy</div>
+			<div id="enemy"><span id="bName">Enemy</span></div>
 		</div>
 		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(atkA, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="atkA">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(atkA, 20)">&#x25B2;</button></div>
+			<div class="meno"><button type="button" onclick="lower(aAtk, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="aAtk">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(aAtk, 1, 20)">&#x25B2;</button></div>
 			<div class="nome">Atk skill</div>
-			<div class="meno"><button type="button" onclick="lower(atkB, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="atkB">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(atkB, 20)">&#x25B2;</button></div>		
+			<div class="meno"><button type="button" onclick="lower(bAtk 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="bAtk">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(bAtk, 1, 20)">&#x25B2;</button></div>		
 		</div>
 		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(dmgDA, 1)">&#x25BC;</button></div>
-			<div class="val"><span id="dmgDA">2</span></div>
-			<div class="piu"><button type="button" onclick="raise(dmgDA, 100)">&#x25B2;</button></div>	
+			<div class="meno"><button type="button" onclick="lower(aDamD, 1, 1)">&#x25BC;</button></div>
+			<div class="val"><span id="aDamD">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(aDamD, 1, 100)">&#x25B2;</button></div>	
 			<div class="nome">Dmg dice</div>
-			<div class="meno"><button type="button" onclick="lower(dmgDB, 1)">&#x25BC;</button></div>
-			<div class="val"><span id="dmgDB">2</span></div>
-			<div class="piu"><button type="button" onclick="raise(dmgDB, 100)">&#x25B2;</button></div>		
+			<div class="meno"><button type="button" onclick="lower(bDamD, 1, 1)">&#x25BC;</button></div>
+			<div class="val"><span id="bDamD">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(bDamD, 1, 100)">&#x25B2;</button></div>		
 		</div>
 		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(dmgMA, -6)">&#x25BC;</button></div>
-			<div class="val"><span id="dmgMA">1</span></div>
-			<div class="piu"><button type="button" onclick="raise(dmgMA, 4)">&#x25B2;</button></div>	
+			<div class="meno"><button type="button" onclick="lower(aDamM, 1, -6)">&#x25BC;</button></div>
+			<div class="val"><span id="aDamM">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(aDamM, 1, 4)">&#x25B2;</button></div>	
 			<div class="nome">Dmg mod</div>
-			<div class="meno"><button type="button" onclick="lower(dmgMB, -6)">&#x25BC;</button></div>
-			<div class="val"><span id="dmgMB">1</span></div>
-			<div class="piu"><button type="button" onclick="raise(dmgMB, 4)">&#x25B2;</button></div>
-		</div>
-
-		<div style="height:1em;">
-		</div>
-
-		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(defA, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="defA">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(defA, 20)">&#x25B2;</button></div>
-			<div class="nome">Def skill</div>
-			<div class="meno"><button type="button" onclick="lower(defB, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="defB">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(defB, 20)">&#x25B2;</button></div>		
+			<div class="meno"><button type="button" onclick="lower(bDamM, 1, -6)">&#x25BC;</button></div>
+			<div class="val"><span id="bDamM">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(bDamM, 1, 4)">&#x25B2;</button></div>
 		</div>
 		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(DRA, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="DRA">2</span></div>
-			<div class="piu"><button type="button" onclick="raise(DRA, 20)">&#x25B2;</button></div>
-			<div class="nome">Armor DR</div>
-			<div class="meno"><button type="button" onclick="lower(DRB, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="DRB">2</span></div>
-			<div class="piu"><button type="button" onclick="raise(DRB, 20)">&#x25B2;</button></div>		
+			<div class="meno"><button type="button" onclick="lower(aDamT, 0.5, 0.5)">&#x25BC;</button></div>
+			<div class="val"><span id="aDamT">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(aDamT, 0.5, 2)">&#x25B2;</button></div>
+			<div class="nome">Dmg mult</div>
+			<div class="meno"><button type="button" onclick="lower(bDamT, 0.5, 0.5)">&#x25BC;</button></div>
+			<div class="val"><span id="bDamT">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(bDamT, 0.5, 2)">&#x25B2;</button></div>		
 		</div>	
+
+		<div style="height:0.5em;">
+		</div>
+
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(aDef, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="aDef">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(aDef, 1, 20)">&#x25B2;</button></div>
+			<div class="nome">Def skill</div>
+			<div class="meno"><button type="button" onclick="lower(bDef, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="bDef">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(bDef, 1, 20)">&#x25B2;</button></div>		
+		</div>
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(aArmR, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="aArmR">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(aArmR, 1, 20)">&#x25B2;</button></div>
+			<div class="nome">Armor DR</div>
+			<div class="meno"><button type="button" onclick="lower(bArmR, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="bArmR">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(bArmR, 1, 20)">&#x25B2;</button></div>		
+		</div>	
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(aHP, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="aHP">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(aHP, 1, 20)">&#x25B2;</button></div>
+			<div class="nome">HP</div>
+			<div class="meno"><button type="button" onclick="lower(bHP, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="bHP">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(bHP, 1, 20)">&#x25B2;</button></div>		
+		</div>			
 	</div>
 
-	<br>
+
 
 	<div class ="tabella" id="risultati">
 		<div class="righeriass">
-			<div class="celleriass"><span id="odeA"></span></div>
+			<div class="celleriass"><span id="aOvercomeDef"></span></div>
 			<div class="nomeriass">To hit</div>
-			<div class="celleriass"><span id="odeB"></span></div>
+			<div class="celleriass"><span id="bOvercomeDef"></span></div>
 		</div>
 		<div class="righeriass">
-			<div class="celleriass"><span id="odrA"></span></div>
+			<div class="celleriass"><span id="aOvercomeDR"></span></div>
 			<div class="nomeriass">To bypass DR</div>
-			<div class="celleriass"><span id="odrB"></span></div>
+			<div class="celleriass"><span id="bOvercomeDR"></span></div>
 		</div>
 		<div class="righeriass">
-			<div class="celleriass"><span id="ctdA"></span></div>
+			<div class="celleriass"><span id="aChanceToDamage"></span></div>
 			<div class="nomeriass">Effective</div>
-			<div class="celleriass"><span id="ctdB"></span></div>
+			<div class="celleriass"><span id="bChanceToDamage"></span></div>
 		</div>
 	</div>
 
