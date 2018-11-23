@@ -4,6 +4,35 @@
   <title>Bilanciatore incontri</title>
 <script>
 
+const cache = {}
+
+function _getElementById(id) {
+	const value = cache[ id ]
+	if (value) {
+		return value
+	}
+	const el = document.getElementById(id)
+	cache[id] = el
+
+	return el
+}
+
+function getValue(name) {
+	return _getElementById(name).innerHTML
+}
+
+function setValue(name, value) {
+	_getElementById(name).innerHTML = value
+}
+
+function show(elem){
+	_getElementById(elem).style.display="block"
+}
+
+function hide(elem){
+	_getElementById(elem).style.display="none"
+}
+
 function sommaele(myArr, indI, indF) {
 	let s = 0
 	for(let i = indI; i <= indF; i++) {
@@ -73,14 +102,6 @@ function raise(id, massimo) {
 	run()
 }
 
-function getValue(name) {
-	return document.getElementById(name).innerHTML
-}
-
-function setValue(name, value) {
-	return document.getElementById(name).innerHTML = value
-}
-
 function run() {
 	let critSA=0;
 	let atkA = +(getValue("atkA"))
@@ -131,11 +152,8 @@ function run() {
 	setValue("odrB", (Math.abs(pDannoB)  *100).toFixed(2)+ " %")
 	setValue("ctdB", (Math.abs(pEffectB) *100).toFixed(2)+ " %")
 	
-	document.getElementById("risultati").style.display="block";
+	show("risultati")
 }
-
-function show(elem){document.getElementById(elem).style.display="block";}
-function hide(elem){document.getElementById(elem).style.display="none";}
 
 </script>
 
