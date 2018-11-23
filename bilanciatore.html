@@ -18,7 +18,10 @@ function _getElementById(id) {
 }
 
 function getValue(name) {
-	return _getElementById(name).innerHTML
+	return parseInt(
+		_getElementById(name).innerHTML,
+		10
+	)
 }
 
 function setValue(name, value) {
@@ -108,56 +111,52 @@ function raise(id, max) {
 	run()
 }
 
+function attack(attacker = {}, defender = {}) {
+	let crit = 0
+
+	if (attacker.atk >= 16) {
+		crit = 6
+	} else if (attacker.atk == 15) {
+		crit = 5
+	} else {
+		crit = 4
+	}
+	const normalizedAtk = Math.min(Math.max(attacker.atk, 4), 16)
+	const normalizedDef = Math.min(Math.max(attacker.def, 4), 16)
+	
+	const pConn = cumul(3, 6, crit) +
+		(cumul(3, 6, normalizedAtk) - cumul(3, 6, crit)) *
+		(1 - cumul(3, 6, normalizedDef))
+	let pDanno = 1 - cumul(attacker.dmgD, 6, Math.min(attacker.dmgD * 6, defender.DR - attacker.dmgM))
+	let pEffect = pConn * pDanno
+ 
+	setValue("ode" + attacker.name, (Math.abs(pConn)   * 100).toFixed(2)+ " %")
+	setValue("odr" + attacker.name, (Math.abs(pDanno)  * 100).toFixed(2)+ " %")
+	setValue("ctd" + attacker.name, (Math.abs(pEffect) * 100).toFixed(2)+ " %")
+}
+
 function run() {
-	let critSA=0;
-	let atkA = +(getValue("atkA"))
-	let dmgDA = +(getValue("dmgDA"))
-	let dmgMA = +(getValue("dmgMA"))
-	let defA = +(getValue("defA"))
-	let DRA = +(getValue("DRA"))
-
-	let critSB=0;
-	let atkB = +(getValue("atkB"))
-	let dmgDB = +(getValue("dmgDB"))
-	let dmgMB = +(getValue("dmgMB"))
-	let defB = +(getValue("defB"))
-	let DRB = +(getValue("DRB"))
-
-	
-	if (atkA >= 16) {
-		critSA = 6
-	} else if (atkA == 15) {
-		critSA = 5
-	} else {
-		critSA = 4
-	}
-	
-	if (atkB >= 16) {
-		critSB = 6
-	} else if (atkB == 15) {
-		critSB = 5
-	} else {
-		critSB = 4
+	const playerA = {
+		name: 'A',
+		atk: getValue("atkA"),
+		dmgD: getValue("dmgDA"),
+		dmgM: getValue("dmgMA"),
+		def: getValue("defA"),
+		DR: getValue("DRA"),
 	}
 
+	const playerB = {
+		name: 'B',
+		atk: getValue("atkB"),
+		dmgD: getValue("dmgDB"),
+		dmgM: getValue("dmgMB"),
+		def: getValue("defB"),
+		DR: getValue("DRB"),
+	}
 
-	let pConnA = cumul(3, 6, critSA) + (cumul(3, 6, Math.min(Math.max(atkA, 4), 16)) - cumul(3, 6, critSA)) * (1 - cumul(3, 6, Math.min(Math.max(defB, 4), 16)))
-	let pDannoA = 1 - cumul(dmgDA, 6, Math.min(dmgDA*6, DRB - dmgMA))
-	let pEffectA = pConnA * pDannoA
- 
-	let pConnB = cumul(3, 6, critSB) + (cumul(3, 6, Math.min(Math.max(atkB, 4), 16)) - cumul(3, 6, critSB)) * (1 - cumul(3, 6, Math.min(Math.max(defA, 4), 16)))
-	let pDannoB = 1 - cumul(dmgDB, 6, Math.min(dmgDB*6, DRA - dmgMB))
-	let pEffectB = pConnB * pDannoB
- 
- 
-	setValue("odeA", (Math.abs(pConnA)   *100).toFixed(2)+ " %")
-	setValue("odrA", (Math.abs(pDannoA)  *100).toFixed(2)+ " %")
-	setValue("ctdA", (Math.abs(pEffectA) *100).toFixed(2)+ " %")
-	
-	setValue("odeB", (Math.abs(pConnB)   *100).toFixed(2)+ " %")
-	setValue("odrB", (Math.abs(pDannoB)  *100).toFixed(2)+ " %")
-	setValue("ctdB", (Math.abs(pEffectB) *100).toFixed(2)+ " %")
-	
+	attack(playerA, playerB)
+	attack(playerB, playerA)
+
 	show("risultati")
 }
 
