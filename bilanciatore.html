@@ -92,13 +92,19 @@ function cumul(dadi, facce, risult) {
 	return somma
 }
 
-function lower(id, minimo) {
-	id.innerHTML = Math.max(parseInt(id.innerHTML) - 1, minimo)
+function lower(id, min) {
+	id.innerHTML = Math.max(
+		parseInt(id.innerHTML, 10) - 1,
+		min
+	)
 	run()
 }
 
-function raise(id, massimo) {
-	id.innerHTML = Math.min(parseInt(id.innerHTML) + 1, massimo)
+function raise(id, max) {
+	id.innerHTML = Math.min(
+		parseInt(id.innerHTML, 10) + 1,
+		max
+	)
 	run()
 }
 
