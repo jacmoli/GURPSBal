@@ -1,14 +1,26 @@
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Combat balancer v1.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combat balancer v1.1</title>
 
-  <script>
+<script>
 
 
 // --------------------------------
 var globalDebug = false;
 // --------------------------------
+
+var charButtons;
+
+
+
+function init() {
+	charButtons = document.querySelectorAll("#fighters button");
+	run();
+}
+
+
+
 
 // Returns sum of all elements of an array 
 function sommaele(myArr, indI, indF) {
@@ -137,6 +149,11 @@ function run() {
 	setValue("bOvercomeDef", (Math.abs(pConnB)   *100).toFixed(2)+ " %")
 	setValue("bOvercomeDR", (Math.abs(pDannoB)  *100).toFixed(2)+ " %")
 	setValue("bChanceToDamage", (Math.abs(pEffectB) *100).toFixed(2)+ " %")
+	
+	setW("aEasyWin", 0 +"%");
+	setW("aHardWin", 0 +"%");
+	setW("bHardWin", 0 +"%");
+	setW("bEasyWin", 0 +"%");
 	
 	//J show("risultati");
 	//J show("simulations");
@@ -379,6 +396,9 @@ function simAll(n, times) {
 	
 	let i=0;
 	
+
+	charButtons.forEach(function(el){el.disabled=true;})
+	
 	let a = setInterval(function(){	
 
 		i++;
@@ -401,6 +421,7 @@ function simAll(n, times) {
 		
 		i == times && setValue("fight", "FIGHT!");
 		i == times && clearInterval(a);
+		i == times && charButtons.forEach(function(el){el.disabled=false;});
 	},1)
 	
 	
@@ -412,7 +433,7 @@ function themeLite(){ document.getElementById("body").classList.replace("dark", 
 
 
 // -------------------------
-window.onload = run;
+window.onload = init;
 // -------------------------
 
 </script>
@@ -422,7 +443,7 @@ window.onload = run;
 body {
 	margin: 0;
 	padding:0;
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: Arial, sans-serif;
 	max-width:414px;
 	/*
 	transform:scale(1.5);
@@ -440,12 +461,12 @@ body {
 }
 
 .dark .bordato {
-	border-color: #cccccc;
+	border-color: #888888;
 }
 
 .dark .temaLD, body.dark {
 	background-color: #000000;
-	color: #ffffff;
+	color: #aaaaaa;
 }
 
 .lite .grayBG {
@@ -551,7 +572,15 @@ body {
 	overflow-y:scroll;
 }
 
-#closehelp, #closeinfo, #closesett {
+.lite .closeBtn {
+	background-color:#aaaaff;
+}
+
+.dark .closeBtn {
+	background-color:#1a1aff;
+}
+
+.closeBtn {
 	position:absolute;
 	display:flex;
 	display: -webkit-flex; 
@@ -559,7 +588,6 @@ body {
 	right:30%;
 	bottom:1em;
 	box-sizing:border-box;
-	background-color:#aaaaff;
 	height:2em;
 	margin: auto;
 	border-width: 1px;
@@ -635,6 +663,30 @@ button {
 	width: 10%;
 }
 
+.meno button {
+	background-color: #ff777780;
+	border-color: #ff0000;
+
+}
+
+.piu button {
+	background-color: #77ff7780;
+	border-color: #00ff00;
+}
+
+.meno button:disabled, .meno button[disabled] {
+	background-color: #cfa5a580;
+	border-color: #808080;
+	color: #808080;
+
+}
+
+.piu button:disabled, .piu button[disabled] {
+	background-color: #a5cfa580;
+	border-color: #808080;
+	color: #808080;
+}
+
 
 
 #player, #enemy {
@@ -646,12 +698,19 @@ button {
 	width: 30%;
 }
 
-#player {
-	color:blue;
+.player {
+	color: #009900;
+	fill: #009900;
 }
 
-#enemy {
-	color:red;
+.enemy {
+	color: #ff0000;
+	fill: #ff0000;
+}
+
+#playerIcon, #enemyIcon {
+	height: 1em;
+	width: 1em;
 }
 
 .righeriass {
@@ -693,20 +752,24 @@ button {
 	width:  0%;
 }
 
-#aEasyWin {
-	background-color:#0000ff;
+.aEasy {
+	background-color:#009900;
+	color:#009900;
 }
 
-#aHardWin {
-	background-color:#7777ff;
+.aHard {
+	background-color:#77ff77;
+	color:#77ff77;
 }
 
-#bHardWin {
+.bHard {
 	background-color:#ff7777;
+	color:#ff7777;
 }
 
-#bEasyWin {
+.bEasy {
 	background-color:#ff0000;
+	color:#ff0000;
 }
 
 #tacchefull {
@@ -805,33 +868,33 @@ button {
 		</div>
 	</div>
 
-	<div class ="tabella bordato temaLD">
+	<div class ="tabella bordato temaLD" id="fighters">
 		<div class="righe" style="height:2em;">
-			<div id="player" class="bordato"><span id="aName">Player</span></div>
+			<div id="player" class="player bordato"><span id="aName">Player</span></div>
 			<div class="nome">
 				<div id="sim" onclick="simAll(50, 2000)">
 					<span class="centrati">
-						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 514 514" style="enable-background:new 0 0 514 514;" xml:space="preserve" width="1em" height="1em">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="player" id="playerIcon" x="0px" y="0px" viewBox="0 0 514 514" style="enable-background:new 0 0 514 514;" xml:space="preserve" >
 							<g>
 								<g transform="scale(-1, 1) translate(-514, 0)">
-									<path d="M236.965,89.788c9.226-11.559,13.355-26.036,11.681-40.724C245.443,21.11,221.838,0,193.721,0    c-33.156,0-58.818,28.881-55.095,61.639C144.316,110.963,206.678,127.968,236.965,89.788z" fill="#0000ff"/>
-									<path d="M485.643,467.296C483.163,462.183,332.265,177,315.528,147.794    c36.757-9.584,68.516,3.625,93.535,38.676c26.751,37.359,68.467,2.642,41.253-35.384C404.91,87.48,315.008,58.948,244.687,100.672    c-30.864,18.346-55.908,32.344-90.455,32.344c-72.279,0-71.572-55.64-105.184-55.64c-20.24,0-34.603,23.516-16.347,49.064    c48.373,67.752,113.654,88.163,177.528,69.971c18.785,32.409,37.123,65.915,55.99,102.355l-75.685,52.177    c-24.491,21.427-5.105,51.446,10.616,60.875c18.956,11.404,43.122,23.313,66.622,34.928c49.804,24.573,52.405,27.564,65.72,28.58    c27.263,2.081,45.422-38.651,13.225-57.981c-20.159-12.112-47.723-30.23-68.662-43.073c18.549-11.86,62.005-30.003,64.11-31.197    c27.45,46.609,46.967,80.514,61.379,105.192c-0.089,0.024-0.163,0.065-0.244,0.081c0.065,0.13,0.138,0.228,0.195,0.341    c28.239,47.829,28.783,51.747,39.367,59.883C464.533,525.26,502.022,501.094,485.643,467.296z" fill="#0000ff"/>
+									<path d="M236.965,89.788c9.226-11.559,13.355-26.036,11.681-40.724C245.443,21.11,221.838,0,193.721,0    c-33.156,0-58.818,28.881-55.095,61.639C144.316,110.963,206.678,127.968,236.965,89.788z"/>
+									<path d="M485.643,467.296C483.163,462.183,332.265,177,315.528,147.794    c36.757-9.584,68.516,3.625,93.535,38.676c26.751,37.359,68.467,2.642,41.253-35.384C404.91,87.48,315.008,58.948,244.687,100.672    c-30.864,18.346-55.908,32.344-90.455,32.344c-72.279,0-71.572-55.64-105.184-55.64c-20.24,0-34.603,23.516-16.347,49.064    c48.373,67.752,113.654,88.163,177.528,69.971c18.785,32.409,37.123,65.915,55.99,102.355l-75.685,52.177    c-24.491,21.427-5.105,51.446,10.616,60.875c18.956,11.404,43.122,23.313,66.622,34.928c49.804,24.573,52.405,27.564,65.72,28.58    c27.263,2.081,45.422-38.651,13.225-57.981c-20.159-12.112-47.723-30.23-68.662-43.073c18.549-11.86,62.005-30.003,64.11-31.197    c27.45,46.609,46.967,80.514,61.379,105.192c-0.089,0.024-0.163,0.065-0.244,0.081c0.065,0.13,0.138,0.228,0.195,0.341    c28.239,47.829,28.783,51.747,39.367,59.883C464.533,525.26,502.022,501.094,485.643,467.296z"/>
 								</g>
 							</g>
 						</svg>					
 						<span id="fight">FIGHT!</span>
-						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 514 514" style="enable-background:new 0 0 514 514;" xml:space="preserve" width="1em" height="1em">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="enemy" id="enemyIcon" x="0px" y="0px" viewBox="0 0 514 514" style="enable-background:new 0 0 514 514;" xml:space="preserve">
 							<g>
 								<g>
-									<path d="M236.965,89.788c9.226-11.559,13.355-26.036,11.681-40.724C245.443,21.11,221.838,0,193.721,0    c-33.156,0-58.818,28.881-55.095,61.639C144.316,110.963,206.678,127.968,236.965,89.788z" fill="#ff0000"/>
-									<path d="M485.643,467.296C483.163,462.183,332.265,177,315.528,147.794    c36.757-9.584,68.516,3.625,93.535,38.676c26.751,37.359,68.467,2.642,41.253-35.384C404.91,87.48,315.008,58.948,244.687,100.672    c-30.864,18.346-55.908,32.344-90.455,32.344c-72.279,0-71.572-55.64-105.184-55.64c-20.24,0-34.603,23.516-16.347,49.064    c48.373,67.752,113.654,88.163,177.528,69.971c18.785,32.409,37.123,65.915,55.99,102.355l-75.685,52.177    c-24.491,21.427-5.105,51.446,10.616,60.875c18.956,11.404,43.122,23.313,66.622,34.928c49.804,24.573,52.405,27.564,65.72,28.58    c27.263,2.081,45.422-38.651,13.225-57.981c-20.159-12.112-47.723-30.23-68.662-43.073c18.549-11.86,62.005-30.003,64.11-31.197    c27.45,46.609,46.967,80.514,61.379,105.192c-0.089,0.024-0.163,0.065-0.244,0.081c0.065,0.13,0.138,0.228,0.195,0.341    c28.239,47.829,28.783,51.747,39.367,59.883C464.533,525.26,502.022,501.094,485.643,467.296z" fill="#ff0000"/>
+									<path d="M236.965,89.788c9.226-11.559,13.355-26.036,11.681-40.724C245.443,21.11,221.838,0,193.721,0    c-33.156,0-58.818,28.881-55.095,61.639C144.316,110.963,206.678,127.968,236.965,89.788z"/>
+									<path d="M485.643,467.296C483.163,462.183,332.265,177,315.528,147.794    c36.757-9.584,68.516,3.625,93.535,38.676c26.751,37.359,68.467,2.642,41.253-35.384C404.91,87.48,315.008,58.948,244.687,100.672    c-30.864,18.346-55.908,32.344-90.455,32.344c-72.279,0-71.572-55.64-105.184-55.64c-20.24,0-34.603,23.516-16.347,49.064    c48.373,67.752,113.654,88.163,177.528,69.971c18.785,32.409,37.123,65.915,55.99,102.355l-75.685,52.177    c-24.491,21.427-5.105,51.446,10.616,60.875c18.956,11.404,43.122,23.313,66.622,34.928c49.804,24.573,52.405,27.564,65.72,28.58    c27.263,2.081,45.422-38.651,13.225-57.981c-20.159-12.112-47.723-30.23-68.662-43.073c18.549-11.86,62.005-30.003,64.11-31.197    c27.45,46.609,46.967,80.514,61.379,105.192c-0.089,0.024-0.163,0.065-0.244,0.081c0.065,0.13,0.138,0.228,0.195,0.341    c28.239,47.829,28.783,51.747,39.367,59.883C464.533,525.26,502.022,501.094,485.643,467.296z"/>
 								</g>
 							</g>
 						</svg>
 					</span>
 				</div>
 			</div>
-			<div id="enemy" class="bordato"><span id="bName">Enemy</span></div>
+			<div id="enemy" class="enemy bordato"><span id="bName">Enemy</span></div>
 		</div>
 		<div class="righe">
 			<div class="meno"><button type="button" onclick="lower(aAtk, 1, 0)">&#x25BC;</button></div>
@@ -924,10 +987,10 @@ button {
 
 	<div id="simulations" class="temaLD">
 		<div class="tabella bordato" id="resultbar">
-			<div class="winBar" id="aEasyWin"></div>
-			<div class="winBar" id="aHardWin"></div>	
-			<div class="winBar" id="bHardWin"></div>
-			<div class="winBar" id="bEasyWin"></div>
+			<div class="winBar aEasy" id="aEasyWin"></div>
+			<div class="winBar aHard" id="aHardWin"></div>	
+			<div class="winBar bHard" id="bHardWin"></div>
+			<div class="winBar bEasy" id="bEasyWin"></div>
 		</div>
 	</div>
 	<div id="tacchefull" lass="temaLD">
@@ -972,10 +1035,10 @@ button {
 		<p>
 		The colored bar at the bottom of the window shows, instead, the result of <span style="color:#009900"><b>100.000</b></span> (yes, it's <i>one hundred thousands</i>) of <u>full and complete simulated fights</u>. In this case HP and damage type/multiplier are accounted for and the results are in the form of percentage bars:<br/>
 			<ul>
-				<li><span style="color:#0000ff">&block;</span>: easy <b>Player</b> victory</li>
-				<li><span style="color:#7777ff">&block;</span>: hard <b>Player</b> victory</li>
-				<li><span style="color:#ff7777">&block;</span>: hard <b>Enemy</b> victory</li>
-				<li><span style="color:#ff0000">&block;</span>: easy <b>Enemy</b> victory</li>				
+				<li><span class="aEasy">&block;</span>: easy <b>Player</b> victory</li>
+				<li><span class="aHard">&block;</span>: hard <b>Player</b> victory</li>
+				<li><span class="bHard">&block;</span>: hard <b>Enemy</b> victory</li>
+				<li><span class="bEasy">&block;</span>: easy <b>Enemy</b> victory</li>				
 			</ul>
 		where the difference between easy and hard victory is whether the winner is left with more or less than 1/3 HP.
 		</p>
@@ -994,7 +1057,7 @@ button {
 		<b>Other items</b>: no light penalties, no footing penalties, no shock penalties.
 		</p>
 	</div>
-	<div id="closehelp" class="bordato" onclick="hide('helpbox')">
+	<div id="closehelp" class="closeBtn bordato" onclick="hide('helpbox')">
 		<span class="centrati">CLOSE</span>
 	</div>
 </div>
@@ -1025,7 +1088,7 @@ button {
 		First release. First-round-only combat simulator.
 		</p>
 	</div>
-	<div id="closeinfo" class="bordato" onclick="hide('infobox')">
+	<div id="closeinfo" class="closeBtn bordato" onclick="hide('infobox')">
 		<span class="centrati">CLOSE</span>
 	</div>
 </div>
@@ -1064,7 +1127,7 @@ button {
 		
 		</p>		
 	</div>
-	<div id="closesett" class="bordato" onclick="hide('settbox')">
+	<div id="closesett" class="closeBtn bordato" onclick="hide('settbox')">
 		<span class="centrati">CLOSE</span>
 	</div>
 </div>
@@ -1075,11 +1138,12 @@ button {
 <!--
 Fare:
 
-- div del tema chiaro e scuro (inline-block, o flex?)
-- spacchettare border in border-width, border-style:solid e border-color
-- border color nella classe "bordati" 
-- color:white in "body" (dargli una id)
-- background color dei vari elementi
+- selettore lingua
+- selettore zoom
+- selettore numero di cicli
+- bottone fight
+- innerHTML diventa textContent
+- resize a 400px max width tutto
 
 
 -->
