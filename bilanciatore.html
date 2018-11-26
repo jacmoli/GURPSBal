@@ -1,7 +1,8 @@
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bilanciatore incontri</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combat balancer v1.1</title>
+
 <script>
 
 const cache = {}
@@ -11,21 +12,13 @@ function _getElementById(id) {
 	if (value) {
 		return value
 	}
-	const el = document.getElementById(id)
+	const el = 
+        
+        
+        (id)
 	cache[id] = el
 
 	return el
-}
-
-function getValue(name) {
-	return parseInt(
-		_getElementById(name).innerHTML,
-		10
-	)
-}
-
-function setValue(name, value) {
-	_getElementById(name).innerHTML = value
 }
 
 function show(elem){
@@ -36,6 +29,30 @@ function hide(elem){
 	_getElementById(elem).style.display="none"
 }
 
+// Getter and setter functions
+function getValue(name) {
+  return _getElementById(name).innerHTML
+}
+
+function setValue(name, value) {
+  _getElementById(name).innerHTML = value
+}
+  
+// --------------------------------
+var globalDebug = false;
+// --------------------------------
+
+var charButtons;
+
+
+
+function init() {
+	charButtons = document.querySelectorAll("#fighters button");
+	run();
+}
+
+// Returns sum of all elements of an array 
+
 function sommaele(myArr, indI, indF) {
 	let s = 0
 	for(let i = indI; i <= indF; i++) {
@@ -44,6 +61,7 @@ function sommaele(myArr, indI, indF) {
 	return s
 }
 
+// Mathematical chance of getting **exactly RISULT** by rolling DADI dice with FACCE sides
 function prob(dadi,facce,risult){
 	let P1 = []
 	let i
@@ -86,6 +104,7 @@ function prob(dadi,facce,risult){
 	return Pt[risult-1]
 }
 
+// Mathematical chance of getting **exactly RISULT or less** by rolling DADI dice with FACCE sides
 function cumul(dadi, facce, risult) {
 	let somma = 0
 	for (let i = 1; i <= risult; i++) {
@@ -95,82 +114,383 @@ function cumul(dadi, facce, risult) {
 	return somma
 }
 
-function lower(id, min) {
-	id.innerHTML = Math.max(
-		parseInt(id.innerHTML, 10) - 1,
-		min
-	)
+// Lowers / raises ID's content by QTY, down to MINIMO or up to MASSIMO
+function lower(id, qty, minimo) {
+	id.innerHTML = Math.max(parseFloat(id.innerHTML, 10) - qty, minimo)
 	run()
 }
 
-function raise(id, max) {
-	id.innerHTML = Math.min(
-		parseInt(id.innerHTML, 10) + 1,
-		max
-	)
+function raise(id, qty, massimo) {
+	id.innerHTML = Math.min(parseFloat(id.innerHTML, 10) + qty, massimo)
 	run()
-}
-
-function attack(attacker = {}, defender = {}) {
-	let crit = 0
-
-	if (attacker.atk >= 16) {
-		crit = 6
-	} else if (attacker.atk == 15) {
-		crit = 5
-	} else {
-		crit = 4
-	}
-	const normalizedAtk = Math.min(Math.max(attacker.atk, 4), 16)
-	const normalizedDef = Math.min(Math.max(attacker.def, 4), 16)
-	
-	const pConn = cumul(3, 6, crit) +
-		(cumul(3, 6, normalizedAtk) - cumul(3, 6, crit)) *
-		(1 - cumul(3, 6, normalizedDef))
-	let pDanno = 1 - cumul(attacker.dmgD, 6, Math.min(attacker.dmgD * 6, defender.DR - attacker.dmgM))
-	let pEffect = pConn * pDanno
- 
-	setValue("ode" + attacker.name, (Math.abs(pConn)   * 100).toFixed(2)+ " %")
-	setValue("odr" + attacker.name, (Math.abs(pDanno)  * 100).toFixed(2)+ " %")
-	setValue("ctd" + attacker.name, (Math.abs(pEffect) * 100).toFixed(2)+ " %")
 }
 
 function run() {
-	const playerA = {
-		name: 'A',
-		atk: getValue("atkA"),
-		dmgD: getValue("dmgDA"),
-		dmgM: getValue("dmgMA"),
-		def: getValue("defA"),
-		DR: getValue("DRA"),
+	let critSA=0;
+	let aAtk = +(getValue("aAtk"))
+	let aDamD = +(getValue("aDamD"))
+	let aDamM = +(getValue("aDamM"))
+	let aDef = +(getValue("aDef"))
+	let aArmR = +(getValue("aArmR"))
+
+	let critSB=0;
+	let bAtk = +(getValue("bAtk"))
+	let bDamD = +(getValue("bDamD"))
+	let bDamM = +(getValue("bDamM"))
+	let bDef = +(getValue("bDef"))
+	let bArmR = +(getValue("bArmR"))
+
+	
+	if (aAtk >= 16) {
+		critSA = 6
+	} else if (aAtk == 15) {
+		critSA = 5
+	} else {
+		critSA = 4
+	}
+	
+	if (bAtk >= 16) {
+		critSB = 6
+	} else if (bAtk == 15) {
+		critSB = 5
+	} else {
+		critSB = 4
 	}
 
-	const playerB = {
-		name: 'B',
-		atk: getValue("atkB"),
-		dmgD: getValue("dmgDB"),
-		dmgM: getValue("dmgMB"),
-		def: getValue("defB"),
-		DR: getValue("DRB"),
-	}
-
-	attack(playerA, playerB)
-	attack(playerB, playerA)
-
-	show("risultati")
+	let pConnA = cumul(3, 6, critSA) + (cumul(3, 6, Math.min(Math.max(aAtk, 4), 16)) - cumul(3, 6, critSA)) * (1 - cumul(3, 6, Math.min(Math.max(bDef, 4), 16)))
+	let pDannoA = 1 - cumul(aDamD, 6, Math.min(aDamD*6, bArmR - aDamM))
+	let pEffectA = pConnA * pDannoA
+ 
+	let pConnB = cumul(3, 6, critSB) + (cumul(3, 6, Math.min(Math.max(bAtk, 4), 16)) - cumul(3, 6, critSB)) * (1 - cumul(3, 6, Math.min(Math.max(aDef, 4), 16)))
+	let pDannoB = 1 - cumul(bDamD, 6, Math.min(bDamD*6, aArmR - bDamM))
+	let pEffectB = pConnB * pDannoB
+ 
+	setValue("aOvercomeDef", (Math.abs(pConnA)   *100).toFixed(2)+ " %")
+	setValue("aOvercomeDR", (Math.abs(pDannoA)  *100).toFixed(2)+ " %")
+	setValue("aChanceToDamage", (Math.abs(pEffectA) *100).toFixed(2)+ " %")
+	
+	setValue("bOvercomeDef", (Math.abs(pConnB)   *100).toFixed(2)+ " %")
+	setValue("bOvercomeDR", (Math.abs(pDannoB)  *100).toFixed(2)+ " %")
+	setValue("bChanceToDamage", (Math.abs(pEffectB) *100).toFixed(2)+ " %")
+	
+	setW("aEasyWin", 0 +"%");
+	setW("aHardWin", 0 +"%");
+	setW("bHardWin", 0 +"%");
+	setW("bEasyWin", 0 +"%");
+	
+	//J show("risultati");
+	//J show("simulations");
+	//J simul(50);
 }
+
+function setW(elem, val){_getElementById(elem).style.width=val;}
+
+
+// FIGHT SIMULATOR
+
+// Dice roller, D dice with S sides
+function roll(dice, sides, label) {
+	let r = 0;
+	let i;
+	let cast; 
+	let results = (label == undefined ? "" : ("[" + label + "] ")) + "Rolls: ";
+	
+	for (i = 0; i < dice; i++) {
+		cast = Math.floor(Math.random()*sides)+1;
+		r = r + cast,
+		results = results + cast + " ";			
+	}		
+	
+	globalDebug && console.log(results);
+	return r
+}
+
+// Character builder - From DOM
+function charBuilder(charName) {
+	
+	let x = {
+		name  : getValue(charName+"Name"),
+		atk   : parseFloat( getValue(charName+"Atk"), 10),
+		def   : parseFloat( getValue(charName+"Def"), 10),
+		damD  : parseFloat( getValue(charName+"DamD"), 10),
+		damM  : parseFloat( getValue(charName+"DamM"), 10),
+		damT  : parseFloat( getValue(charName+"DamT"), 10),
+		armR  : parseFloat( getValue(charName+"ArmR"), 10),
+		hp    : parseFloat( getValue(charName+"HP"), 10),
+		shock : 0
+	};	
+
+	return x
+}
+
+// Default character builder - Debug only
+function charDefault(a) {
+	let x = {
+		name  : "Player: " + a,
+		atk   : 11,
+		def   : 8,
+		damD  : 2,
+		damM  : 1,
+		damT  : 1.5,
+		armR  : 3,
+		hp    : 12,
+		shock : 0,
+	};
+	
+	return x
+}
+
+
+// Fight phases
+function attack(x, y) {
+
+	let res = roll(3,6);      // dice roll result
+	let R = {val:0, log:""};  // outcome and logs
+	let att= x.atk - x.shock;
+	x.shock = 0;
+	
+	
+	if (res <=4 || (res <=6 && res >= (att+10))) {
+		R.val = -1;
+		R.log = x.name + " rolled " + res + " vs " + att + ", a critical success!\n";
+	} else if (res <= att && res < 17) {
+		R.val = 1;
+		R.log = x.name + " rolled " + res + " vs " + att + ", a standard success. " + y.name + " gets to defend...";
+	} else {
+		R.val = 0;
+		R.log = x.name + " rolled " + res + " vs " + att + ", a poor and useless attack.\n\n";
+	}
+
+	return R
+}
+
+function defend(x, y) {
+  
+	let res = roll(3,6);      // dice roll result
+	let def = y.def;
+		
+	return (res <= def)
+    ? {
+		  val: 0,
+		  log: " and succeeds (roll " + res + " vs " + def + ")!\n\n"
+	  }
+    : {
+		  val: 1,
+		  log: " and fails (roll " + res + " vs " + def + ").\n"
+	  }
+}
+
+function damage(x, y) {
+
+	let dice  = x.damD;  // damage dice
+	let modif  = x.damM;  // damage modifier
+	let type  = x.damT;  // residual damage multiplier
+	let damred = y.armR;  // armor reduction
+
+
+	let res = roll(dice,6) + modif;
+	let R = {val:0, log:""};
+	
+	let temp = Math.floor( (res - damred) * type);
+	
+	R.val = Math.max(temp, 0);
+	
+	R.log = x.name + " rolls " + res + " against a DR of " + y.armR + ". Damage modifier is " + type + " and the final result is " + (R.val >0 ? R.val : "no") + " point(s) of damage.\n\n"
+
+	return R
+}
+
+function round(x, y) {
+
+	let phase1 = {};
+	let phase2 = {};
+	let phase3 = {};
+
+	phase1 = attack(x, y);
+	
+	if (phase1.val === 1) {
+		phase2 = defend(x, y)
+	} else {
+		phase2.val = -1;
+		phase2.log = "";
+	}
+	
+	/* 
+	critical success
+	ph1 = -1 ?
+		ph2 set to -1
+			ph1 x ph2 = 1 --> damage
+	
+	attack fails
+	ph1 =  0 ?
+		ph2 set to -1
+			ph1 x ph2 = 0 --> end turn
+		
+	attack succeeds, defense to be checked
+	ph1 =  1 ?
+		ph2 = 1 ?
+			ph1 x ph2 = 1 --> damage
+		ph2 = 0 ?
+			ph1 x ph2 = 0 --> end turn
+	*/
+	
+	phase3.val = 0;
+	phase3.log = "";
+	
+	if (phase1.val * phase2.val === 1) { phase3 = damage(x, y) }
+
+	globalDebug && console.log(phase1.log + phase2.log + phase3.log);
+	
+	y.hp = y.hp - phase3.val;
+	y.shock = Math.min(phase3.val, 4);
+	
+	return phase3.val
+}
+
+function fight(x, y){
+	let i = 1;
+	let easy1 = Math.ceil(x.hp/3);
+	let easy2 = Math.ceil(y.hp/3);
+	let R = "";
+	
+	while(x.hp > 0 && y.hp > 0){
+	
+		globalDebug && console.log("------------------\nRound " + i);
+	
+		round(x, y);		// X attacks Y
+		globalDebug && console.log(x.name + " has " + x.hp + " HP, " + y.name + " has " + y.hp + " HP.\n");
+		if ( y.hp <= 0 ) {
+			globalDebug && console.log(y.name + " falls down, dead. " + x.name + " wins!\n");
+			return (x.hp >= easy1 ?   "easy1" :  "hard1")
+		}
+		
+		round(y, x);		// Y attacks X
+		globalDebug && console.log(x.name + " has " + x.hp + " HP, " + y.name + " has " + y.hp + " HP.\n");
+		if ( x.hp <= 0 ) {
+			globalDebug && console.log(x.name + " falls down, dead. " + y.name + " wins!\n");
+			return (y.hp >= easy2 ?   "easy2" :  "hard2")
+		}
+		
+		i++;
+	}
+
+}
+
+// Multiple fight simulator - fights N times
+function simul(n){
+	let p1, p2;
+	let we1 = 0;
+	let wh1 = 0;
+	let we2 = 0;
+	let wh2 = 0;
+	let w;
+	
+	for (let i = 0; i < n; i++) {
+	
+		p1 = charBuilder("a");
+		p2 = charBuilder("b");
+		
+		w = fight(p1, p2);
+		
+		w == "easy1" && we1++;
+		w == "hard1" && wh1++;
+		w == "hard2" && wh2++;		
+		w == "easy2" && we2++;
+
+	}
+
+	globalDebug && console.log("FINAL RESULT: " + p1.name + " " + we1 + "e " + wh1 + "h" + " / " + p2.name + " " + we2 + "e " + wh2 + "h");
+
+	return [we1, wh1, wh2, we2]
+}
+
+// Batched fights - fights N times, updates visual results, repeat TIMES times
+function simAll(n, times) {
+
+	let parziale = [0, 0, 0, 0];
+	let aux      = [0, 0, 0, 0];
+	
+	let i=0;
+	
+
+	charButtons.forEach(function(el){el.disabled=true;})
+	
+	let a = setInterval(function(){	
+
+		i++;
+		
+		aux = simul(n);
+		
+		parziale[0] += aux[0];
+		parziale[1] += aux[1];
+		parziale[2] += aux[2];
+		parziale[3] += aux[3];
+		
+		setW("aEasyWin", Math.ceil(1000*parziale[0]/(n*i))/10 +"%");
+		setW("aHardWin", Math.ceil(1000*parziale[1]/(n*i))/10 +"%");
+		setW("bHardWin", Math.ceil(1000*parziale[2]/(n*i))/10 +"%");
+		setW("bEasyWin", Math.ceil(1000*parziale[3]/(n*i))/10 +"%");
+			
+		globalDebug && console.log(i + ": " + parziale[0] + " " + parziale[1] + " " + parziale[2] + " " + parziale[3]);
+
+		setValue("fight", Math.round(100*i/times) + "%");
+		
+		i == times && setValue("fight", "FIGHT!");
+		i == times && clearInterval(a);
+		i == times && charButtons.forEach(function(el){el.disabled=false;});
+	},1)
+	
+	
+}
+
+// Light / dark themes toggle
+function themeDark(){ _getElementById("body").classList.replace("lite", "dark"); }
+function themeLite(){ _getElementById("body").classList.replace("dark", "lite"); }
+
+
+// -------------------------
+window.onload = init;
+// -------------------------
 
 </script>
 
 <style>
 
-* {
-	font-family: "Comic Sans MS";
-}
-
 body {
 	margin: 0;
 	padding:0;
+	font-family: Arial, sans-serif;
+	max-width:414px;
+	/*
+	transform:scale(1.5);
+	transform-origin: 0 0;
+	*/
+}
+
+.lite .bordato {
+	border-color: #222222;
+}
+
+.lite .temaLD, body.lite {
+	background-color: #ffffff;
+	color: #000000;
+}
+
+.dark .bordato {
+	border-color: #888888;
+}
+
+.dark .temaLD, body.dark {
+	background-color: #000000;
+	color: #aaaaaa;
+}
+
+.lite .grayBG {
+	background-color: #cccccc;
+}
+
+.dark .grayBG {
+	background-color: #555555;
 }
 
 #menu {
@@ -188,29 +508,59 @@ body {
 	display: -webkit-flex; 
 }
 
-#menu-help, #menu-info {
+#menu-btns {
+	width:40%;
+	height: 3em;
+	display:inline-block;
+}
+
+#menu-help, #menu-info, #menu-sett {
 	box-sizing:border-box;
-	border: 2px solid black;
-	border-radius:1em;
-	width:18%;
+	border-width:  2px;
+	border-style:  solid;
+	border-radius: 50%;
+	width:  2em;
 	height: 2em;
-	display:flex;
+	display: flex;
 	display: -webkit-flex; 
-	margin-top:auto;
-	margin-bottom:auto;
+	margin: auto 0.25em;
+	float:right;
 }
 
-#menu-help {
-	margin-right: 2%;
-	background-color:#ffaaaa;
+.lite #menu-help {
+	background-color:#ffff00;
+	fill: #000000;
+}
+.dark #menu-help {
+	background-color:#000000;
+	fill: #ffff00;
 }
 
-#menu-info {
-	margin-left: 2%;
-	background-color:#aaffaa;
+.lite #menu-info {
+	background-color:#4040ff;
+	fill: #ffffff;
+}
+.dark #menu-info {
+	background-color:#4040ff;
+	fill: #ffffff;
 }
 
-#helpbox, #infobox {
+.lite #menu-sett {
+	background-color:#cccccc;
+	fill: #000000;
+}
+.dark #menu-sett {
+	background-color:#000000;
+	fill: #cccccc;
+}
+
+#icon_Sett, #icon_Info, #icon_Help {
+	height: 1.2em;
+	width:  1.2em;
+}
+
+
+#helpbox, #infobox, #settbox {
 	margin: 0;
 	width:auto;
 	max-width:404px;
@@ -222,15 +572,13 @@ body {
 	left:5px;
 	bottom:5px;
 	right:5px;
-	background-color:#cccccc;
 	z-index:1;
 	padding:10px;
 	
 }
 
-#helptext, #infotext {
+#helptext, #infotext, #setttext {
 	box-sizing:border-box;
-	background-color:#ffffff;
 	padding:3px;
 	position:absolute;
 	top:10px;
@@ -240,7 +588,15 @@ body {
 	overflow-y:scroll;
 }
 
-#closehelp, #closeinfo {
+.lite .closeBtn {
+	background-color:#aaaaff;
+}
+
+.dark .closeBtn {
+	background-color:#1a1aff;
+}
+
+.closeBtn {
 	position:absolute;
 	display:flex;
 	display: -webkit-flex; 
@@ -248,18 +604,18 @@ body {
 	right:30%;
 	bottom:1em;
 	box-sizing:border-box;
-	background-color:#aaaaff;
 	height:2em;
 	margin: auto;
-	border: 1px solid black;
+	border-width: 1px;
+	border-style: solid;
 	border-radius: 1em;
+	cursor:default;
 }
 
 #contenit {
 	margin:0;
 	padding:3px;
 	max-width:404px;
-	background-color:#ffffff;
 	width:auto;
 	height:auto;
 	box-sizing:border-box;
@@ -277,7 +633,8 @@ body {
 
 .tabella {	
 	box-sizing: border-box;
-	border: 2px solid black;
+	border-width: 2px;
+	border-style: solid;
 	padding: 0px;
 	width: 100%;
 	max-width: 404px;
@@ -289,18 +646,26 @@ body {
 	display: flex;
 	flex-direction:row;
 	width: 100%;
-	height:3em;
+	height:2.2em;
 	padding: 0;
 }
 
 .nome, .val {
-	margin: 1em 0;
+	margin: auto;
 	text-align:center;
+}
+
+.nome {
+	width: 40%;
+}
+
+.val {
+	width: 10%;
 }
 
 button {
 	box-sizing: content-box; 
-	height:2em;
+	height:1.5em;
 	width:80%;
 	padding:0;
 	-webkit-appearance: none;
@@ -309,40 +674,69 @@ button {
 }
 
 .meno, .piu {
-	margin: 0.5em 0;
+	margin: auto;
 	text-align:center;
-}
-
-
-.nome {
-	width: 40%;
-}
-
-.meno, .piu {
 	width: 10%;
 }
 
-.val {
-	width: 10%;
+.meno button {
+	background-color: #ff777780;
+	border-color: #ff0000;
+
 }
+
+.piu button {
+	background-color: #77ff7780;
+	border-color: #00ff00;
+}
+
+.meno button:disabled, .meno button[disabled] {
+	background-color: #cfa5a580;
+	border-color: #808080;
+	color: #808080;
+
+}
+
+.piu button:disabled, .piu button[disabled] {
+	background-color: #a5cfa580;
+	border-color: #808080;
+	color: #808080;
+}
+
+
 
 #player, #enemy {
 	text-align:center; 
-	border-bottom: 1px solid black; 
+	border-bottom-width: 1px;
+	border-bottom-style: solid; 
 	box-sizing: content-box; 
-	padding:0.5em 0;
+	margin:auto;
 	width: 30%;
 }
 
+.player {
+	color: #009900;
+	fill: #009900;
+}
+
+.enemy {
+	color: #ff0000;
+	fill: #ff0000;
+}
+
+#playerIcon, #enemyIcon {
+	height: 1em;
+	width: 1em;
+}
 
 .righeriass {
 	display: flex;
 	flex-direction:row;
-	height: 2em;
+	height: 1.5em;
 }
 
 .celleriass, .nomeriass {
-	margin: 0.5em 0;
+	margin: auto;
 	text-align:center;
 }
 
@@ -355,116 +749,316 @@ button {
 }
 
 #risultati {
-	display:none;
+	display:block;
+	margin-top:0.5em;
 }
 
+#simulations {
+	display:block;
+}
+
+#resultbar {
+	display:flex;
+	margin-top:0.5em;
+	height:1.5em;
+}
+
+.winBar {
+	height: 100%;
+	width:  0%;
+}
+
+.aEasy {
+	background-color:#009900;
+	color:#009900;
+}
+
+.aHard {
+	background-color:#77ff77;
+	color:#77ff77;
+}
+
+.bHard {
+	background-color:#ff7777;
+	color:#ff7777;
+}
+
+.bEasy {
+	background-color:#ff0000;
+	color:#ff0000;
+}
+
+#tacchefull {
+	display:flex;
+	height: 5px;
+}
+
+.tacche {
+	width:20%;
+	height: 100%;
+	border-left-width:  1px;
+	border-right-width: 1px;
+	border-left-style:  solid;
+	border-right-style: solid;
+}
+
+#taccaI {
+	border-left-width:  2px;
+}
+
+#taccaU {
+	border-right-width: 2px;
+}
+
+.note {
+	font-size:small;
+}
+
+.optionsGroup {
+	display:flex;
+}
+
+.option {
+	margin:auto;
+	border-width: 2px;
+	border-style: solid;
+	border-radius: 50%;
+	padding: 0.5em;
+}
+
+.optionIcon {
+	height: 2em;
+	width:  2em;
+}
+
+.lite #theme-lite {
+	fill: #cc6600;
+}
+
+.dark #theme-lite {
+	fill: #FFDA44;
+}
+
+.lite #theme-dark {
+	fill: #006DF0;
+}
+
+.dark #theme-dark {
+	fill: #99c7ff;
+}
 
 </style>
 
 </head>
 
 
-<body>
-<div id="contenit">
+<body class="dark" id="body">
+<div id="contenit" class="temaLD">
 
-	<div id="menu">
+	<div id="menu" class="temaLD">
 		<div id="menu-title"><span><b>GURPS</b><sup>&#174;</sup><br/>Combat balancer</span></div>
-		<div id="menu-help" onclick="show('helpbox')"><span class="centrati">HELP</span></div>
-		<div id="menu-info" onclick="show('infobox')"><span class="centrati">INFO</span></div>
+		<div id="menu-btns">
+			<div id="menu-sett" class="bordato" onclick="show('settbox')">
+				<span class="centrati">
+					<svg xmlns="http://www.w3.org/2000/svg" id="icon_Sett" viewBox="0 64 896 896" >
+						<path d="M447.938 350C358.531 350 286 422.531 286 512c0 89.375 72.531 162.062 161.938 162.062 89.438 0 161.438-72.688 161.438-162.062C609.375 422.531 537.375 350 447.938 350zM772.625 605.062l-29.188 70.312 52.062 102.25 6.875 13.5-72.188 72.188L611.75 807.375l-70.312 28.875L505.75 945.5l-4.562 14.5H399.156L355 836.688l-70.312-29-102.404 51.938-13.5 6.75-72.156-72.125 55.875-118.5-28.969-70.25L14.469 569.875 0 565.188V463.219L123.406 419l28.969-70.188-51.906-102.469-6.844-13.438 72.062-72.062 118.594 55.844 70.219-29.031 35.656-109.188L394.75 64h102l44.188 123.469 70.125 29.031L713.5 164.53099999999995l13.625-6.844 72.125 72.062-55.875 118.406L772.25 418.5l109.375 35.656L896 458.75v101.938L772.625 605.062z"></path>
+					</svg>
+				</span>
+			</div>
+			
+			<div id="menu-info" class="bordato" onclick="show('infobox')">
+				<span class="centrati">
+					<svg xmlns="http://www.w3.org/2000/svg" id="icon_Info" viewBox="0 0 1024 1024">
+						<path d="m640.8 12.64c40.68-5.326 85.35 9.973 106.5 47.33 28.91 51.11 12.97 122.6-40.87 156.7-41.97 26.63-98.75 28.74-137.6 0.9018-33.6-23.9-45.5-73.5-33.7-115.1 13.7-48 56.6-83.33 105.7-89.76zm23.7 330.9c22.1 55.7-5.4 119.8-25.3 174.7-35.6 97.2-104.8 279-116.7 315.4-13.7 41.6-0.4 59.4 26.3 48.8 45.6-18.5 96-98.6 131.2-124 14.4-10.4 30 13.6 23.1 29.6-27.9 64.8-138.5 161.5-225.5 199.2-48 20.8-111.2 35.8-157.3 14.8-38.9-17.5-45.9-60.9-40.4-97.4 16.3-107.1 64.7-205.3 102.8-305.6 22.03-58 64.68-156.2 68-173.3 6.1-31.3-16.2-39.1-41.1-25.7-50.4 27.2-98.4 106-125.6 123.2-15.3 9.7-31.3-7.1-28-20.8 8-33.6 84-106.4 112-129.6 74.4-61.6 140.7-75.3 187.3-79.51 41.41-3.781 92.42 7.921 109.2 50.21z"/>
+					</svg>
+				</span>
+			</div>
+			
+			<div id="menu-help" class="bordato" onclick="show('helpbox')">
+				<span class="centrati">
+					<svg xmlns="http://www.w3.org/2000/svg" id="icon_Help" viewBox="256 192 1408 1408">
+						<path d="M1088 1256v240q0 16-12 28t-28 12h-240q-16 0-28-12t-12-28v-240q0-16 12-28t28-12h240q16 0 28 12t12 28zm316-600q0 54-15.5 101t-35 76.5-55 59.5-57.5 43.5-61 35.5q-41 23-68.5 65t-27.5 67q0 17-12 32.5t-28 15.5h-240q-15 0-25.5-18.5t-10.5-37.5v-45q0-83 65-156.5t143-108.5q59-27 84-56t25-76q0-42-46.5-74t-107.5-32q-65 0-108 29-35 25-107 115-13 16-31 16-12 0-25-8l-164-125q-13-10-15.5-25t5.5-28q160-266 464-266 80 0 161 31t146 83 106 127.5 41 158.5z"/>
+					</svg>
+				</span>
+			</div>
+		</div>
 	</div>
 
-	<div class ="tabella">
+	<div class ="tabella bordato temaLD" id="fighters">
 		<div class="righe" style="height:2em;">
-			<div id="player">Player</div>
-			<div class="nome"></div>
-			<div id="enemy">Enemy</div>
+			<div id="player" class="player bordato"><span id="aName">Player</span></div>
+			<div class="nome">
+				<div id="sim" onclick="simAll(50, 2000)">
+					<span class="centrati">
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="player" id="playerIcon" x="0px" y="0px" viewBox="0 0 514 514" style="enable-background:new 0 0 514 514;" xml:space="preserve" >
+							<g>
+								<g transform="scale(-1, 1) translate(-514, 0)">
+									<path d="M236.965,89.788c9.226-11.559,13.355-26.036,11.681-40.724C245.443,21.11,221.838,0,193.721,0    c-33.156,0-58.818,28.881-55.095,61.639C144.316,110.963,206.678,127.968,236.965,89.788z"/>
+									<path d="M485.643,467.296C483.163,462.183,332.265,177,315.528,147.794    c36.757-9.584,68.516,3.625,93.535,38.676c26.751,37.359,68.467,2.642,41.253-35.384C404.91,87.48,315.008,58.948,244.687,100.672    c-30.864,18.346-55.908,32.344-90.455,32.344c-72.279,0-71.572-55.64-105.184-55.64c-20.24,0-34.603,23.516-16.347,49.064    c48.373,67.752,113.654,88.163,177.528,69.971c18.785,32.409,37.123,65.915,55.99,102.355l-75.685,52.177    c-24.491,21.427-5.105,51.446,10.616,60.875c18.956,11.404,43.122,23.313,66.622,34.928c49.804,24.573,52.405,27.564,65.72,28.58    c27.263,2.081,45.422-38.651,13.225-57.981c-20.159-12.112-47.723-30.23-68.662-43.073c18.549-11.86,62.005-30.003,64.11-31.197    c27.45,46.609,46.967,80.514,61.379,105.192c-0.089,0.024-0.163,0.065-0.244,0.081c0.065,0.13,0.138,0.228,0.195,0.341    c28.239,47.829,28.783,51.747,39.367,59.883C464.533,525.26,502.022,501.094,485.643,467.296z"/>
+								</g>
+							</g>
+						</svg>					
+						<span id="fight">FIGHT!</span>
+						<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="enemy" id="enemyIcon" x="0px" y="0px" viewBox="0 0 514 514" style="enable-background:new 0 0 514 514;" xml:space="preserve">
+							<g>
+								<g>
+									<path d="M236.965,89.788c9.226-11.559,13.355-26.036,11.681-40.724C245.443,21.11,221.838,0,193.721,0    c-33.156,0-58.818,28.881-55.095,61.639C144.316,110.963,206.678,127.968,236.965,89.788z"/>
+									<path d="M485.643,467.296C483.163,462.183,332.265,177,315.528,147.794    c36.757-9.584,68.516,3.625,93.535,38.676c26.751,37.359,68.467,2.642,41.253-35.384C404.91,87.48,315.008,58.948,244.687,100.672    c-30.864,18.346-55.908,32.344-90.455,32.344c-72.279,0-71.572-55.64-105.184-55.64c-20.24,0-34.603,23.516-16.347,49.064    c48.373,67.752,113.654,88.163,177.528,69.971c18.785,32.409,37.123,65.915,55.99,102.355l-75.685,52.177    c-24.491,21.427-5.105,51.446,10.616,60.875c18.956,11.404,43.122,23.313,66.622,34.928c49.804,24.573,52.405,27.564,65.72,28.58    c27.263,2.081,45.422-38.651,13.225-57.981c-20.159-12.112-47.723-30.23-68.662-43.073c18.549-11.86,62.005-30.003,64.11-31.197    c27.45,46.609,46.967,80.514,61.379,105.192c-0.089,0.024-0.163,0.065-0.244,0.081c0.065,0.13,0.138,0.228,0.195,0.341    c28.239,47.829,28.783,51.747,39.367,59.883C464.533,525.26,502.022,501.094,485.643,467.296z"/>
+								</g>
+							</g>
+						</svg>
+					</span>
+				</div>
+			</div>
+			<div id="enemy" class="enemy bordato"><span id="bName">Enemy</span></div>
 		</div>
 		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(atkA, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="atkA">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(atkA, 20)">&#x25B2;</button></div>
+			<div class="meno"><button type="button" onclick="lower(aAtk, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="aAtk">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(aAtk, 1, 20)">&#x25B2;</button></div>
 			<div class="nome">Atk skill</div>
-			<div class="meno"><button type="button" onclick="lower(atkB, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="atkB">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(atkB, 20)">&#x25B2;</button></div>		
+			<div class="meno"><button type="button" onclick="lower(bAtk, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="bAtk">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(bAtk, 1, 20)">&#x25B2;</button></div>		
 		</div>
 		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(dmgDA, 1)">&#x25BC;</button></div>
-			<div class="val"><span id="dmgDA">2</span></div>
-			<div class="piu"><button type="button" onclick="raise(dmgDA, 100)">&#x25B2;</button></div>	
+			<div class="meno"><button type="button" onclick="lower(aDamD, 1, 1)">&#x25BC;</button></div>
+			<div class="val"><span id="aDamD">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(aDamD, 1, 100)">&#x25B2;</button></div>	
 			<div class="nome">Dmg dice</div>
-			<div class="meno"><button type="button" onclick="lower(dmgDB, 1)">&#x25BC;</button></div>
-			<div class="val"><span id="dmgDB">2</span></div>
-			<div class="piu"><button type="button" onclick="raise(dmgDB, 100)">&#x25B2;</button></div>		
+			<div class="meno"><button type="button" onclick="lower(bDamD, 1, 1)">&#x25BC;</button></div>
+			<div class="val"><span id="bDamD">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(bDamD, 1, 100)">&#x25B2;</button></div>		
 		</div>
 		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(dmgMA, -6)">&#x25BC;</button></div>
-			<div class="val"><span id="dmgMA">1</span></div>
-			<div class="piu"><button type="button" onclick="raise(dmgMA, 4)">&#x25B2;</button></div>	
+			<div class="meno"><button type="button" onclick="lower(aDamM, 1, -6)">&#x25BC;</button></div>
+			<div class="val"><span id="aDamM">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(aDamM, 1, 4)">&#x25B2;</button></div>	
 			<div class="nome">Dmg mod</div>
-			<div class="meno"><button type="button" onclick="lower(dmgMB, -6)">&#x25BC;</button></div>
-			<div class="val"><span id="dmgMB">1</span></div>
-			<div class="piu"><button type="button" onclick="raise(dmgMB, 4)">&#x25B2;</button></div>
-		</div>
-
-		<div style="height:1em;">
-		</div>
-
-		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(defA, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="defA">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(defA, 20)">&#x25B2;</button></div>
-			<div class="nome">Def skill</div>
-			<div class="meno"><button type="button" onclick="lower(defB, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="defB">10</span></div>
-			<div class="piu"><button type="button" onclick="raise(defB, 20)">&#x25B2;</button></div>		
+			<div class="meno"><button type="button" onclick="lower(bDamM, 1, -6)">&#x25BC;</button></div>
+			<div class="val"><span id="bDamM">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(bDamM, 1, 4)">&#x25B2;</button></div>
 		</div>
 		<div class="righe">
-			<div class="meno"><button type="button" onclick="lower(DRA, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="DRA">2</span></div>
-			<div class="piu"><button type="button" onclick="raise(DRA, 20)">&#x25B2;</button></div>
-			<div class="nome">Armor DR</div>
-			<div class="meno"><button type="button" onclick="lower(DRB, 0)">&#x25BC;</button></div>
-			<div class="val"><span id="DRB">2</span></div>
-			<div class="piu"><button type="button" onclick="raise(DRB, 20)">&#x25B2;</button></div>		
+			<div class="meno"><button type="button" onclick="lower(aDamT, 0.5, 0.5)">&#x25BC;</button></div>
+			<div class="val"><span id="aDamT">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(aDamT, 0.5, 2)">&#x25B2;</button></div>
+			<div class="nome">Dmg mult</div>
+			<div class="meno"><button type="button" onclick="lower(bDamT, 0.5, 0.5)">&#x25BC;</button></div>
+			<div class="val"><span id="bDamT">1</span></div>
+			<div class="piu"><button type="button" onclick="raise(bDamT, 0.5, 2)">&#x25B2;</button></div>		
 		</div>	
+
+		<div style="height:0.5em;">
+		</div>
+
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(aDef, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="aDef">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(aDef, 1, 20)">&#x25B2;</button></div>
+			<div class="nome">Def skill</div>
+			<div class="meno"><button type="button" onclick="lower(bDef, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="bDef">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(bDef, 1, 20)">&#x25B2;</button></div>		
+		</div>
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(aArmR, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="aArmR">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(aArmR, 1, 20)">&#x25B2;</button></div>
+			<div class="nome">Armor DR</div>
+			<div class="meno"><button type="button" onclick="lower(bArmR, 1, 0)">&#x25BC;</button></div>
+			<div class="val"><span id="bArmR">2</span></div>
+			<div class="piu"><button type="button" onclick="raise(bArmR, 1, 20)">&#x25B2;</button></div>		
+		</div>	
+		<div class="righe">
+			<div class="meno"><button type="button" onclick="lower(aHP, 1, 1)">&#x25BC;</button></div>
+			<div class="val"><span id="aHP">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(aHP, 1, 40)">&#x25B2;</button></div>
+			<div class="nome">HP</div>
+			<div class="meno"><button type="button" onclick="lower(bHP, 1, 1)">&#x25BC;</button></div>
+			<div class="val"><span id="bHP">10</span></div>
+			<div class="piu"><button type="button" onclick="raise(bHP, 1, 40)">&#x25B2;</button></div>		
+		</div>			
 	</div>
 
-	<br>
 
-	<div class ="tabella" id="risultati">
+
+	<div class ="tabella bordato temaLD" id="risultati">
 		<div class="righeriass">
-			<div class="celleriass"><span id="odeA"></span></div>
+			<div class="celleriass"><span id="aOvercomeDef"></span></div>
 			<div class="nomeriass">To hit</div>
-			<div class="celleriass"><span id="odeB"></span></div>
+			<div class="celleriass"><span id="bOvercomeDef"></span></div>
 		</div>
 		<div class="righeriass">
-			<div class="celleriass"><span id="odrA"></span></div>
+			<div class="celleriass"><span id="aOvercomeDR"></span></div>
 			<div class="nomeriass">To bypass DR</div>
-			<div class="celleriass"><span id="odrB"></span></div>
+			<div class="celleriass"><span id="bOvercomeDR"></span></div>
 		</div>
 		<div class="righeriass">
-			<div class="celleriass"><span id="ctdA"></span></div>
+			<div class="celleriass"><span id="aChanceToDamage"></span></div>
 			<div class="nomeriass">Effective</div>
-			<div class="celleriass"><span id="ctdB"></span></div>
+			<div class="celleriass"><span id="bChanceToDamage"></span></div>
 		</div>
 	</div>
 
+	<div id="simulations" class="temaLD">
+		<div class="tabella bordato" id="resultbar">
+			<div class="winBar aEasy" id="aEasyWin"></div>
+			<div class="winBar aHard" id="aHardWin"></div>	
+			<div class="winBar bHard" id="bHardWin"></div>
+			<div class="winBar bEasy" id="bEasyWin"></div>
+		</div>
+	</div>
+	<div id="tacchefull" lass="temaLD">
+		<div class="tacche bordato" id="taccaI"></div>
+		<div class="tacche bordato"></div>
+		<div class="tacche bordato"></div>
+		<div class="tacche bordato"></div>
+		<div class="tacche bordato" id="taccaU"></div>
+	</div>	
+	
+
+	
+	
+	
+	
 </div>
 
-<div id="helpbox">
-	<div id="helptext">
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="grayBG" id="helpbox">
+	<div id="helptext" class="temaLD">
 		<h2>Purpose of this game aid</h2>
 		<p>
 		This game aid simulates a combat between two opponents with set characteristics and returns the following info:
-		<ul>
-			<li><b>Chance to hit</b>: the chance of scoring a critical hit (no defense allowed) plus the chance of scoring a non-critical hit for 
-			which the defender fails his defense roll;</li>
-			<li><b>Chance to bypass DR</b>: chance that the damage roll is more than the defender's DR;</li>
-			<li><b>Chance to damage</b>: the product of the two above (i.e. chance to hit with a powerful enough attack).</li>
-		</ul>
-		with the reference rules of <b>GURPS</b><sup>&#174;</sup> Basic Set, 4th edition.
+			<ul>
+				<li><b>Chance to hit</b>: the chance of scoring a critical hit (no defense allowed) plus the chance of scoring a non-critical hit for which the defender fails his defense roll;</li>
+				<li><b>Chance to bypass DR</b>: chance that the damage roll is more than the defender's DR;</li>
+				<li><b>Chance to damage</b>: the product of the two above (i.e. chance to hit with a powerful enough attack).</li>
+			</ul>
+		with the reference rules of <b>GURPS</b><sup>&#174;</sup> Basic Set, 4th edition <u>and in a "first strike" scenario</u>.
 		</p>
+		<p>
+		The colored bar at the bottom of the window shows, instead, the result of <span style="color:#009900"><b>100.000</b></span> (yes, it's <i>one hundred thousands</i>) of <u>full and complete simulated fights</u>. In this case HP and damage type/multiplier are accounted for and the results are in the form of percentage bars:<br/>
+			<ul>
+				<li><span class="aEasy">&block;</span>: easy <b>Player</b> victory</li>
+				<li><span class="aHard">&block;</span>: hard <b>Player</b> victory</li>
+				<li><span class="bHard">&block;</span>: hard <b>Enemy</b> victory</li>
+				<li><span class="bEasy">&block;</span>: easy <b>Enemy</b> victory</li>				
+			</ul>
+		where the difference between easy and hard victory is whether the winner is left with more or less than 1/3 HP.
+		</p>
+		
 		<h3>Simplifications</h3>
 		<p>
 		<b>Combat</b>: only 1vs1 melee combat is considered with both weapons within reach.
@@ -476,20 +1070,16 @@ button {
 		<b>Stances and positions</b>: the fighters are assumed standing and facing each other. No runaround, side or back attacks.
 		</p>
 		<p>
-		<b>Endurance</b>: the simulation only deals with chance to do at least 1 point of damage, without considering how much is the actual damage,
-		the damage type (cutting, piercing...) and the HP of the fighters.
-		</p>
-		<p>
 		<b>Other items</b>: no light penalties, no footing penalties, no shock penalties.
 		</p>
 	</div>
-	<div id="closehelp" onclick="hide('helpbox')">
+	<div id="closehelp" class="closeBtn bordato" onclick="hide('helpbox')">
 		<span class="centrati">CLOSE</span>
 	</div>
 </div>
 
-<div id="infobox">
-	<div id="infotext">
+<div class="grayBG" id="infobox">
+	<div id="infotext" class="temaLD">
 		<h2>Legal info</h2>
 		<p>
 		GURPS is a trademark of Steve Jackson Games, and its rules and art are copyrighted by Steve Jackson Games.<br/>
@@ -504,11 +1094,72 @@ button {
 		<b><i>GURPS</i></b></a> system from <a href="http://www.sjgames.com/">Steve Jackson Games</a>.<br/>
 		This material is not official and is not endorsed by Steve Jackson Games.
 		</p>
+		<h2>Versions</h2>
+		<p class="note">
+		<b>V1.1</b><br/>
+		Added 2000 instances of 50 simulations of full combat and results (total 100k fights), revised texts and icons, added settings. Other minor code updates.
+		</p>
+		<p class="note">
+		<b>V1.0</b><br/>
+		First release. First-round-only combat simulator.
+		</p>
 	</div>
-	<div id="closeinfo" onclick="hide('infobox')">
+	<div id="closeinfo" class="closeBtn bordato" onclick="hide('infobox')">
+		<span class="centrati">CLOSE</span>
+	</div>
+</div>
+
+<div class="grayBG" id="settbox">
+	<div id="setttext" class="temaLD">
+		<h2>Settings</h2>
+		
+		<h3>Color theme</h3>
+		<div class="optionsGroup" id="LiteDark">
+			<div class="option bordato grayBG" id="theme-lite" onclick="themeLite()">
+				<span class="centrati">
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="optionIcon" x="0px" y="0px" viewBox="0 0 612 612" style="enable-background:new 0 0 612 612;" xml:space="preserve">
+						<path d="M104.914,306c0-14.478-11.75-26.229-26.229-26.229H26.229C11.75,279.771,0,291.522,0,306     c0,14.479,11.75,26.229,26.229,26.229h52.457C93.164,332.229,104.914,320.479,104.914,306z M131.143,454.629     c-7.239,0-13.796,2.938-18.553,7.676l-34.971,34.972c-4.739,4.756-7.676,11.313-7.676,18.552     c0,14.479,11.733,26.229,26.229,26.229c7.239,0,13.796-2.938,18.535-7.693l34.972-34.972c4.756-4.738,7.694-11.295,7.694-18.534     C157.372,466.379,145.639,454.629,131.143,454.629z M306,104.914c14.496,0,26.229-11.75,26.229-26.229V26.229     C332.229,11.75,320.496,0,306,0c-14.496,0-26.229,11.75-26.229,26.229v52.457C279.771,93.164,291.504,104.914,306,104.914z      M480.857,157.372c7.239,0,13.796-2.938,18.534-7.676l34.972-34.972c4.756-4.756,7.693-11.313,7.693-18.552     c0-14.478-11.732-26.229-26.229-26.229c-7.238,0-13.796,2.938-18.552,7.694l-34.972,34.971     c-4.738,4.739-7.676,11.296-7.676,18.535C454.629,145.621,466.361,157.372,480.857,157.372z M112.59,149.695     c4.756,4.738,11.313,7.676,18.553,7.676c14.478,0,26.229-11.75,26.229-26.229c0-7.239-2.938-13.796-7.676-18.552l-34.972-34.971     c-4.756-4.739-11.313-7.676-18.552-7.676c-14.478,0-26.229,11.75-26.229,26.229c0,7.239,2.938,13.796,7.676,18.535     L112.59,149.695z M585.771,279.771h-52.457c-14.479,0-26.229,11.75-26.229,26.229c0,14.479,11.75,26.229,26.229,26.229h52.457     C600.25,332.229,612,320.479,612,306C612,291.522,600.25,279.771,585.771,279.771z M499.409,462.305     c-4.756-4.738-11.312-7.676-18.552-7.676c-14.479,0-26.229,11.75-26.229,26.229c0,7.239,2.938,13.796,7.676,18.534l34.972,34.972     c4.756,4.756,11.313,7.693,18.552,7.693c14.479,0,26.229-11.75,26.229-26.229c0-7.238-2.938-13.796-7.676-18.552L499.409,462.305     z M306,507.086c-14.496,0-26.229,11.75-26.229,26.229v52.457C279.771,600.25,291.504,612,306,612     c14.496,0,26.229-11.75,26.229-26.229v-52.457C332.229,518.836,320.496,507.086,306,507.086z M306,122.4     c-101.242,0-183.6,82.358-183.6,183.6S204.758,489.6,306,489.6S489.6,407.242,489.6,306S407.242,122.4,306,122.4z M306,437.143     c-72.321,0-131.143-58.821-131.143-131.143c0-72.321,58.822-131.143,131.143-131.143c72.321,0,131.143,58.822,131.143,131.143     C437.143,378.321,378.321,437.143,306,437.143z"/>
+					</svg>
+				</span>
+			</div>
+			<div class="option bordato grayBG" id="theme-dark" onclick="themeDark()">
+				<span class="centrati">
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="optionIcon" x="0px" y="0px" viewBox="0 0 438.277 438.277" style="enable-background:new 0 0 438.277 438.277;" xml:space="preserve">
+						<path d="M428.756,300.104c-0.664-3.81-2.334-7.047-4.996-9.713c-5.9-5.903-12.752-7.142-20.554-3.716   c-20.937,9.708-42.641,14.558-65.097,14.558c-28.171,0-54.152-6.94-77.943-20.838c-23.791-13.894-42.631-32.736-56.525-56.53   c-13.899-23.793-20.844-49.773-20.844-77.945c0-21.888,4.333-42.683,12.991-62.384c8.66-19.7,21.176-36.973,37.543-51.82   c6.283-5.898,7.713-12.752,4.287-20.557c-3.236-7.801-9.041-11.511-17.415-11.132c-29.121,1.141-56.72,7.664-82.797,19.556   C111.33,31.478,88.917,47.13,70.168,66.548c-18.747,19.414-33.595,42.399-44.54,68.95c-10.942,26.553-16.416,54.39-16.416,83.511   c0,29.694,5.806,58.054,17.416,85.082c11.613,27.028,27.218,50.344,46.824,69.949c19.604,19.599,42.92,35.207,69.951,46.822   c27.028,11.607,55.384,17.415,85.075,17.415c42.64,0,81.987-11.563,118.054-34.69c36.069-23.124,63.05-54.006,80.944-92.645   C429,307.519,429.427,303.906,428.756,300.104z M306.565,384.168c-24.646,11.711-50.676,17.562-78.087,17.562   c-24.743,0-48.39-4.853-70.947-14.558c-22.554-9.705-41.971-22.695-58.246-38.972c-16.271-16.272-29.259-35.686-38.97-58.241   c-9.707-22.556-14.561-46.203-14.561-70.948c0-40.922,12.135-77.466,36.403-109.636c24.266-32.165,55.531-53.959,93.788-65.379   c-19.795,31.405-29.694,65.379-29.694,101.926c0,34.644,8.564,66.715,25.697,96.223c17.128,29.499,40.446,52.811,69.95,69.948   c29.499,17.129,61.565,25.694,96.211,25.694c10.656,0,21.129-0.855,31.408-2.57C352.199,356.155,331.21,372.472,306.565,384.168z"/>
+					</svg>
+				</span>
+			</div>		
+		</div>
+		<hr/>
+		
+		<h3>Language</h3>
+		<p>
+		
+		</p>
+		<hr/>
+		
+		<h3>Zoom</h3>
+		<p>
+		
+		</p>		
+	</div>
+	<div id="closesett" class="closeBtn bordato" onclick="hide('settbox')">
 		<span class="centrati">CLOSE</span>
 	</div>
 </div>
 
 </body>
 </html>
+
+<!--
+TODO:
+
+- selettore lingua
+- selettore zoom
+- selettore numero di cicli
+- bottone fight
+- innerHTML diventa textContent
+- resize a 400px max width tutto
+
+
+-->
