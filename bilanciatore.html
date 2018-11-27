@@ -5,7 +5,39 @@
 
 <script>
 
+const cache = {}
 
+function _getElementById(id) {
+	const value = cache[ id ]
+	if (value) {
+		return value
+	}
+	const el = 
+        
+        
+        (id)
+	cache[id] = el
+
+	return el
+}
+
+function show(elem){
+	_getElementById(elem).style.display="block"
+}
+
+function hide(elem){
+	_getElementById(elem).style.display="none"
+}
+
+// Getter and setter functions
+function getValue(name) {
+  return _getElementById(name).innerHTML
+}
+
+function setValue(name, value) {
+  _getElementById(name).innerHTML = value
+}
+  
 // --------------------------------
 var globalDebug = false;
 // --------------------------------
@@ -19,10 +51,8 @@ function init() {
 	run();
 }
 
-
-
-
 // Returns sum of all elements of an array 
+
 function sommaele(myArr, indI, indF) {
 	let s = 0
 	for(let i = indI; i <= indF; i++) {
@@ -86,19 +116,14 @@ function cumul(dadi, facce, risult) {
 
 // Lowers / raises ID's content by QTY, down to MINIMO or up to MASSIMO
 function lower(id, qty, minimo) {
-	id.innerHTML = Math.max(parseFloat(id.innerHTML) - qty, minimo)
+	id.innerHTML = Math.max(parseFloat(id.innerHTML, 10) - qty, minimo)
 	run()
 }
 
 function raise(id, qty, massimo) {
-	id.innerHTML = Math.min(parseFloat(id.innerHTML) + qty, massimo)
+	id.innerHTML = Math.min(parseFloat(id.innerHTML, 10) + qty, massimo)
 	run()
 }
-
-// Getter and setter functions
-function getValue(name) { return document.getElementById(name).innerHTML; }
-
-function setValue(name, value) { return document.getElementById(name).innerHTML = value; }
 
 function run() {
 	let critSA=0;
@@ -132,7 +157,6 @@ function run() {
 		critSB = 4
 	}
 
-
 	let pConnA = cumul(3, 6, critSA) + (cumul(3, 6, Math.min(Math.max(aAtk, 4), 16)) - cumul(3, 6, critSA)) * (1 - cumul(3, 6, Math.min(Math.max(bDef, 4), 16)))
 	let pDannoA = 1 - cumul(aDamD, 6, Math.min(aDamD*6, bArmR - aDamM))
 	let pEffectA = pConnA * pDannoA
@@ -140,7 +164,6 @@ function run() {
 	let pConnB = cumul(3, 6, critSB) + (cumul(3, 6, Math.min(Math.max(bAtk, 4), 16)) - cumul(3, 6, critSB)) * (1 - cumul(3, 6, Math.min(Math.max(aDef, 4), 16)))
 	let pDannoB = 1 - cumul(bDamD, 6, Math.min(bDamD*6, aArmR - bDamM))
 	let pEffectB = pConnB * pDannoB
- 
  
 	setValue("aOvercomeDef", (Math.abs(pConnA)   *100).toFixed(2)+ " %")
 	setValue("aOvercomeDR", (Math.abs(pDannoA)  *100).toFixed(2)+ " %")
@@ -157,15 +180,10 @@ function run() {
 	
 	//J show("risultati");
 	//J show("simulations");
-	
 	//J simul(50);
 }
 
-function show(elem){document.getElementById(elem).style.display="block";}
-function hide(elem){document.getElementById(elem).style.display="none";}
-
-function setW(elem, val){document.getElementById(elem).style.width=val;}
-
+function setW(elem, val){_getElementById(elem).style.width=val;}
 
 
 // FIGHT SIMULATOR
@@ -191,14 +209,14 @@ function roll(dice, sides, label) {
 function charBuilder(charName) {
 	
 	let x = {
-		name  :             getValue(charName+"Name")  ,
-		atk   : parseFloat( getValue(charName+"Atk")  ),
-		def   : parseFloat( getValue(charName+"Def")  ),
-		damD  : parseFloat( getValue(charName+"DamD") ),
-		damM  : parseFloat( getValue(charName+"DamM") ),
-		damT  : parseFloat( getValue(charName+"DamT") ),
-		armR  : parseFloat( getValue(charName+"ArmR") ),
-		hp    : parseFloat( getValue(charName+"HP")   ),
+		name  : getValue(charName+"Name"),
+		atk   : parseFloat( getValue(charName+"Atk"), 10),
+		def   : parseFloat( getValue(charName+"Def"), 10),
+		damD  : parseFloat( getValue(charName+"DamD"), 10),
+		damM  : parseFloat( getValue(charName+"DamM"), 10),
+		damT  : parseFloat( getValue(charName+"DamT"), 10),
+		armR  : parseFloat( getValue(charName+"ArmR"), 10),
+		hp    : parseFloat( getValue(charName+"HP"), 10),
 		shock : 0
 	};	
 
@@ -247,21 +265,19 @@ function attack(x, y) {
 }
 
 function defend(x, y) {
-
+  
 	let res = roll(3,6);      // dice roll result
-	let R = {val:0, log:""};  // outcome and logs
 	let def = y.def;
-	
-	
-	if (res <= def) {
-		R.val = 0;
-		R.log = " and succeeds (roll " + res + " vs " + def + ")!\n\n";
-	} else {
-		R.val = 1;
-		R.log = " and fails (roll " + res + " vs " + def + ").\n";
-	}
-	
-	return R	
+		
+	return (res <= def)
+    ? {
+		  val: 0,
+		  log: " and succeeds (roll " + res + " vs " + def + ")!\n\n"
+	  }
+    : {
+		  val: 1,
+		  log: " and fails (roll " + res + " vs " + def + ").\n"
+	  }
 }
 
 function damage(x, y) {
@@ -428,8 +444,8 @@ function simAll(n, times) {
 }
 
 // Light / dark themes toggle
-function themeDark(){ document.getElementById("body").classList.replace("lite", "dark"); }
-function themeLite(){ document.getElementById("body").classList.replace("dark", "lite"); }
+function themeDark(){ _getElementById("body").classList.replace("lite", "dark"); }
+function themeLite(){ _getElementById("body").classList.replace("dark", "lite"); }
 
 
 // -------------------------
@@ -1136,7 +1152,7 @@ button {
 </html>
 
 <!--
-Fare:
+TODO:
 
 - selettore lingua
 - selettore zoom
